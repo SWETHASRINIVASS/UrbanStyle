@@ -12,7 +12,9 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        return response()->json(Customer::with('saleInvoices')->get());
+        $customers = Customer::all();
+        return view("Customers.index", compact("customers"));
+        // return response()->json(Customer::with('saleInvoices')->get());
 
     }
 
@@ -21,7 +23,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        //
+        return view("customers.create");
     }
 
     /**
@@ -63,7 +65,8 @@ class CustomerController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $customer = Customer::find($id);
+        return view('customers.edit', compact('customer'));
     }
 
     /**

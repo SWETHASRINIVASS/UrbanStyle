@@ -12,7 +12,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return response()->json(Category::with('products')->get());
+        $categories = Category::all();
+        return view('categories.index', compact('categories'));
+        // return response()->json(Category::with('products')->get());
     }
 
     /**
@@ -20,7 +22,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('categories.create');
     }
 
     /**
@@ -52,7 +54,8 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::find($id);
+        return view('categories.edit', compact('category'));
     }
 
     /**
