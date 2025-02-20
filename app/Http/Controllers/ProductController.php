@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,7 +14,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return response()->json(Product::with(['category', 'supplier'])->get());
+        $products = Product::with(['category', 'supplier'])->get();
+        return view('products.index',compact('products'));
     }
 
     /**
@@ -20,7 +23,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        $suppliers = Supplier::all();
+        return view('products.create',compact('categories','suppliers'));
     }
 
     /**
@@ -38,7 +43,7 @@ class ProductController extends Controller
             'hsn_code' => 'nullable|string'
         ]);
         $product = Product::create($validatedData);
-        return response()->json(['message' => 'Product created successfully', 'data' => $product], 201);
+        return redirect()->route('products.index')->with('success', 'Product created successfully');
     }
 
     /**
@@ -48,9 +53,9 @@ class ProductController extends Controller
     {
         $product = Product::with(['category', 'supplier'])->find($id);
         if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+            return redirect()->route('products.index')->with('error', 'Product not found');
         }
-        return response()->json($product);
+        return view('products.show', compact('product'));
     }
 
     /**
@@ -58,7 +63,13 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $product = Product::find($id);
+        if (!$product) {
+            return redirect()->route('products.index')->with('error', 'Product not found');
+        }
+        $suppliers = Supplier::all();
+        $categories = Category::all();
+        return view('products.edit', compact('product', 'categories', 'suppliers'));
     }
 
     /**
@@ -66,7 +77,23 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $product = Product::find($id);
+        if (!$product) {
+            return redirect()->route('products.index')->with('error', 'Product not found');
+        }
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'purchase_price' => 'required|numeric',
+            'sale_price' => 'required|numeric',
+            'current_stock' => 'required|integer',
+            'hsn_code' => 'nullable|string'
+        ]);
+
+        $product->update($validatedData);
+        return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
 
     /**
@@ -74,6 +101,11 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::find($id);
+        if (!$product) {
+            return redirect()->route('products.index')->with('error', 'Product not found');
+        }
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully');
     }
 }

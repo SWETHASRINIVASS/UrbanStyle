@@ -31,10 +31,10 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' =>'required|string|max:255|unique:categories',
+            'name' => 'required|string|max:255|unique:categories',
         ]);
         $category = Category::create($validatedData);
-        return response()->json(['message' => 'Category created successfully', 'data' => $category], 201);
+        return redirect()->route('categories.index')->with('success', 'Category created successfully');
     }
 
     /**
@@ -44,9 +44,9 @@ class CategoryController extends Controller
     {
         $category = Category::with('products')->find($id);
         if (!$category) {
-            return response()->json(['message' =>'Category not found'], 404);
+            return redirect()->route('categories.index')->with('error', 'Category not found');
         }
-        return response()->json($category);
+        return view('categories.show', compact('category'));
     }
 
     /**
@@ -55,6 +55,9 @@ class CategoryController extends Controller
     public function edit(string $id)
     {
         $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('categories.index')->with('error', 'Category not found');
+        }
         return view('categories.edit', compact('category'));
     }
 
@@ -65,11 +68,15 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return redirect()->route('categories.index')->with('error', 'Category not found');
         }
 
-        $category->update($request->all());
-        return response()->json(['message' => 'Category updated successfully', 'data' => $category]);
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $id,
+        ]);
+
+        $category->update($validatedData);
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully');
     }
 
     /**
@@ -79,13 +86,12 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return redirect()->route('categories.index')->with('error', 'Category not found');
         }
         if ($category->products()->count() > 0) {
-            return response()->json(['message' => 'Category cannot be deleted because it has products'], 400);
+            return redirect()->route('categories.index')->with('error', 'Category cannot be deleted because it has products');
         }
         $category->delete();
-        return response()->json(['message' =>'Category deleted successfully']);
-        
+        return redirect()->route('categories.index')->with('success', 'Category deleted successfully');
     }
 }

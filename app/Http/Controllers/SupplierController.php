@@ -14,7 +14,8 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        return response()->json(Supplier::with(['purchaseInvoices.PurchasePayments'])->get());
+        $suppliers = Supplier::with(['purchaseInvoices.purchasePayments'])->get();
+        return view('suppliers.index', compact('suppliers'));
     }
 
     /**
@@ -22,7 +23,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        //
+        return view('suppliers.create');
     }
 
     /**
@@ -42,8 +43,8 @@ class SupplierController extends Controller
         ]);
 
         $supplier = Supplier::create($validatedData);
-        return response()->json(['message' => 'Supplier created successfully', 'data' => $supplier], 201);
-    }
+        return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully');
+        }
 
     /**
      * Display the specified resource.
@@ -52,9 +53,9 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::with(['purchaseInvoices.purchasePayments'])->find($id);
         if (!$supplier) {
-            return response()->json(['message' => 'Supplier not found'], 404);
+            return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
         }
-        return response()->json($supplier);
+        return view('suppliers.show', compact('supplier'));
     }
 
     /**
@@ -62,7 +63,11 @@ class SupplierController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $supplier = Supplier::find($id);
+        if (!$supplier) {
+            return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
+        }
+        return view('suppliers.edit', compact('supplier'));
     }
 
     /**
@@ -72,11 +77,22 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::find($id);
         if (!$supplier) {
-            return response()->json(['message' => 'Supplier not found'], 404);
+            return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
         }
 
-        $supplier->update($request->all());
-        return response()->json(['message' => 'Supplier updated successfully', 'data' => $supplier]);
+        $validatedData = $request->validate([
+           'name' => 'required|string|max:255|unique:suppliers',
+            'phone' => 'required|string|max:20|unique:suppliers',
+            'address_line_1' => 'nullable|string',
+            'address_line_2' => 'nullable|string',
+            'city' => 'nullable|string',
+            'state' => 'nullable|string',
+            'country' => 'nullable|string',
+            'pin_code' => 'nullable|string'
+        ]);
+
+        $supplier->update($validatedData);
+        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully');
     }
 
     /**
@@ -86,14 +102,14 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::find($id);
         if (!$supplier) {
-            return response()->json(['message' => 'Supplier not found'], 404);
+            return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
         }
 
         if ($supplier->purchaseInvoices()->count() > 0) {
-            return response()->json(['message' => 'Cannot delete supplier with existing purchase invoices'], 400);
+            return redirect()->route('suppliers.index')->with('error', 'Cannot delete supplier with existing purchase invoices');
         }
 
         $supplier->delete();
-        return response()->json(['message' => 'Supplier deleted successfully']);
+        return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully');
     }
 }

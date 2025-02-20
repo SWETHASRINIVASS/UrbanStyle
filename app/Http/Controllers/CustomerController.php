@@ -44,7 +44,7 @@ class CustomerController extends Controller
 
         ]);
         $customer = Customer::create($validatedData);
-        return response()->json(['message' => 'Customer created successfully', 'data' => $customer], 201);
+        return redirect()->route('customers.index')->with('success', 'Customer created successfully');
 
     }
 
@@ -55,9 +55,9 @@ class CustomerController extends Controller
     {
         $customer = Customer::with('saleInvoices')->find($id);
         if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
+            return redirect()->route('customers.index')->with('error', 'Customer not found');
         }
-        return response()->json($customer);
+        return view('customers.show', compact('customer'));
     }
 
     /**
@@ -66,6 +66,9 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $customer = Customer::find($id);
+        if (!$customer) {
+            return redirect()->route('customers.index')->with('error', 'Customer not found');
+        }
         return view('customers.edit', compact('customer'));
     }
 
@@ -76,11 +79,21 @@ class CustomerController extends Controller
     {
         $customer = Customer::find($id);
         if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
+            return redirect()->route('customers.index')->with('error', 'Customer not found');
         }
-        $customer->update($request->all());
-        return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
-
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20|unique:customers,phone,' . $id,
+            'email' => 'nullable|email|unique:customers,email,' . $id,
+            'address_line_1' => 'nullable|string',
+            'address_line_2' => 'nullable|string',
+            'city' => 'nullable|string',
+            'state' => 'nullable|string',
+            'country' => 'nullable|string',
+            'pin_code' => 'nullable|string'
+        ]);
+        $customer->update($validatedData);
+        return redirect()->route('customers.index')->with('success', 'Customer updated successfully');
     }
 
     /**
@@ -90,13 +103,12 @@ class CustomerController extends Controller
     {
         $customer = Customer::find($id);
         if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
+            return redirect()->route('customers.index')->with('error', 'Customer not found');
         }
         if ($customer->saleInvoices()->count() > 0) {
-            return response()->json(['message' => 'Customer cannot be deleted as they have invoices'], 404);
-
+            return redirect()->route('customers.index')->with('error', 'Customer cannot be deleted as they have invoices');
         }
         $customer->delete();
-        return response()->json(['message' => 'Customer deleted successfully']);
+        return redirect()->route('customers.index')->with('success', 'Customer deleted successfully');
     }
 }

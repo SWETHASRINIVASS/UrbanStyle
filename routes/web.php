@@ -38,10 +38,11 @@ Route::resource('purchases', PurchaseInvoiceController::class);
 Route::resource('sales', SaleInvoiceController::class);
 Route::resource('taxes', TaxController::class);
 
-// payments routes
+// payments, invoice, returns routes
 
 Route::post('/sales/{id}/payments', [SaleInvoiceController::class, 'storePayment']);
-Route::post('/purchases/{id}/payments', [PurchaseInvoiceController::class, 'storePayment']);
-
+Route::post('purchases/{id}/payments', [PurchaseInvoiceController::class, 'storePayment'])->name('purchaseInvoices.storePayment');
+Route::post('purchases/{id}/returns', [PurchaseInvoiceController::class, 'storeReturn'])->name('purchaseInvoices.storeReturn');
+Route::post('purchases/{id}/items', [PurchaseInvoiceController::class, 'storeReturnItem'])->name('purchaseReturns.storeReturnItem');
 
 
