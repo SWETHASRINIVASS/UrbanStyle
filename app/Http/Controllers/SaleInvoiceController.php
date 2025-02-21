@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\SaleInvoice;
 use App\Models\SalePayment;
-use App\Models\saleReturn;
+use App\Models\SaleReturn;
 use App\Models\SaleReturnItem;
+use App\Models\Customer;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class SaleInvoiceController extends Controller
@@ -15,7 +17,9 @@ class SaleInvoiceController extends Controller
      */
     public function index()
     {
-        return response()->json(SaleInvoice::with(['customer','saleInvoiceItems','salePayments','saleReturn.saleReturnItems'])->get());
+        $saleInvoices = SaleInvoice::all();
+        return view('sales.index', compact('saleInvoices'));
+
 
     }
 
@@ -24,7 +28,9 @@ class SaleInvoiceController extends Controller
      */
     public function create()
     {
-        //
+        $customers = Customer::all();
+        $products = Product::all();
+        return view('sales.create', compact('customers', 'products'));
     }
 
     /**
@@ -34,7 +40,7 @@ class SaleInvoiceController extends Controller
     {
         $validatedData = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
-            'invoice_no' => 'required|string|unique:sale_invoices',
+            'invoice_number' => 'required|string|unique:sale_invoices',
             'date' => 'required|date',
             'amount' => 'required|numeric',
             'discount' => 'nullable|numeric',
@@ -45,7 +51,7 @@ class SaleInvoiceController extends Controller
             'customer_phone' => 'nullable|string'
         ]);
         $saleInvoice = SaleInvoice::create($validatedData);
-        return response()->json(['message' => 'Sale invoice created successfully', 'data' => $saleInvoice], 201);
+        return redirect()->route('sales.index')->with('success', 'Sale invoice created successfully');
     }
 
     /**
@@ -55,9 +61,9 @@ class SaleInvoiceController extends Controller
     {
         $saleInvoice = SaleInvoice::with(['customer', 'saleInvoiceItems', 'salePayments','saleReturn.saleReturnItems'])->find($id);
         if (!$saleInvoice) {
-            return response()->json(['message' => 'Sale Invoice not found'], 404);
+            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
         }
-        return response()->json($saleInvoice);
+        return view('sales.show', compact('saleInvoice'));
     }
 
     /**
@@ -65,7 +71,13 @@ class SaleInvoiceController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $saleInvoice = SaleInvoice::find($id);
+        if (!$saleInvoice) {
+            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
+        }
+        $customers = Customer::all();
+        $products = Product::all();
+        return view('sales.edit', compact('saleInvoice','customers','products'));
     }
 
     /**
@@ -73,7 +85,24 @@ class SaleInvoiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $saleInvoice = SaleInvoice::find($id);
+        if (!$saleInvoice) {
+            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
+        }
+        $validatedData = $request->validate([
+            'customer_id' => 'nullable|exists:customers,id',
+            'invoice_number' => 'required|string|unique:sale_invoices,invoice_number,' . $id,
+            'date' => 'required|date',
+            'amount' => 'required|numeric',
+            'discount' => 'nullable|numeric',
+            'tax_price' => 'nullable|numeric',
+            'round_off' => 'nullable|numeric',
+            'total_amount' => 'required|numeric',
+            'status' => 'required|string',
+            'customer_phone' => 'nullable|string'
+        ]);
+        $saleInvoice->update($validatedData);
+        return redirect()->route('sales.index')->with('success', 'Sale invoice updated successfully');
     }
 
     /**
@@ -81,7 +110,12 @@ class SaleInvoiceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $saleInvoice = SaleInvoice::find($id);
+        if (!$saleInvoice) {
+            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
+        }
+        $saleInvoice->delete();
+        return redirect()->route('sales.index')->with('success', 'Sale invoice deleted successfully');
     }
 
     // store sale payment
@@ -99,7 +133,7 @@ class SaleInvoiceController extends Controller
 
         ]);
         $salePayment = SalePayment::create($validatedData);
-        return response()->json(['message' => 'Sale payment added successfully', 'data' => $salePayment], 201);
+        return redirect()->route('sales.show', $validatedData['sale_invoice_id'])->with('success', 'Sale payment added successfully');
     }
     // store sale return
     public function storeReturn(Request $request)
@@ -114,8 +148,7 @@ class SaleInvoiceController extends Controller
 
         ]);
         $saleReturn = SaleReturn::create($validatedData);
-        return response()->json(['message' => 'Sale return added successfully' , 'data' =>$saleReturn],201);
-
+        return redirect()->route('sales.show', $validatedData['sale_invoice_id'])->with('success', 'Sale return added successfully');
     }
     // store sale return item
     public function storeReturnItem(Request $request)
@@ -133,7 +166,6 @@ class SaleInvoiceController extends Controller
         ]);
 
         $saleReturnItem = SalereturnItem::create($validatedData);
-        return response()->json(['message' => 'Sale return item added successfully', 'data' => $saleReturnItem], 201);
-
+        return redirect()->route('sales.show', $validatedData['sale_return_id'])->with('success', 'Sale return item added successfully');
     }
 }
