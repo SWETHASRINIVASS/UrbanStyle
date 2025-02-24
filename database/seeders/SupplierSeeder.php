@@ -24,7 +24,7 @@ class SupplierSeeder extends Seeder
                 'city' => 'coimbatore',
                 'state' => 'tamilnadu',
                 'country' => 'india',
-                'pincode' => '641001',
+                'pin_code' => '641001',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -36,7 +36,7 @@ class SupplierSeeder extends Seeder
                 'city'=> 'coimbatore',
                 'state'=> 'tamilnadu',
                 'country'=> 'india',
-                'pincode'=> '478512',
+                'pin_code'=> '478512',
                 'created_at'=> now(),
                 'updated_at'=> now()
             ]

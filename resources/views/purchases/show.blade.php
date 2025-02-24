@@ -1,4 +1,3 @@
-<!-- filepath: /c:/xampp/htdocs/UrbanStyle/resources/views/purchases/show.blade.php -->
 @extends('layouts.app')
 
 @section('content')

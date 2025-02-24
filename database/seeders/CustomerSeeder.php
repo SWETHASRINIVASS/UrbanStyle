@@ -19,28 +19,15 @@ class CustomerSeeder extends Seeder
             [
             'name' => 'swetha',
             'email' => 'swetha@gmail.com',
-            'phone' => '1234567890',
+            'phone' => '12345678',
             'address_line_1' => '123 street',
             'address_line_2' => '123 street',
             'city' => 'coimbatore',
             'state'=> 'tamilnadu',
             'country' => 'india',
-            'pincode' => '641001',
+            'pin_code' => '641001',
             'created_at' => now(),
             'updated_at' => now()
-            ],
-            [
-                'name'=> 'ravi',
-                'email' => 'ravi@gmail.com',
-                'phone' => '9876543210',
-                'address_line_1' => '123 street',
-                'address_line_2' => '123 street',
-                'city' => 'coimbatore',
-                'state'=> 'tamilnadu',
-                'country'=> 'india',
-                'pincode'=> '638402',
-                'created_at'=> now(),
-                'updated_at'=> now()
             ]
 
         ]);

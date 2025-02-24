@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SaleInvoice;
+use App\Models\SaleInvoiceItem;
 use App\Models\SalePayment;
 use App\Models\SaleReturn;
 use App\Models\SaleReturnItem;
@@ -17,7 +18,7 @@ class SaleInvoiceController extends Controller
      */
     public function index()
     {
-        $saleInvoices = SaleInvoice::all();
+        $saleInvoices = SaleInvoice::with(['SaleInvoiceItems', 'SalePayments', 'SaleReturns'])->get();
         return view('sales.index', compact('saleInvoices'));
 
 
@@ -48,9 +49,34 @@ class SaleInvoiceController extends Controller
             'round_off' => 'nullable|numeric',
             'total_amount' => 'required|numeric',
             'status' => 'required|string',
-            'customer_phone' => 'nullable|string'
+            'phone' => 'nullable|string'
         ]);
         $saleInvoice = SaleInvoice::create($validatedData);
+        // Handle items
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
+                $saleInvoice->saleInvoiceItems()->create($item);
+            }
+        }
+
+        // Handle payments
+        if ($request->has('payments')) {
+            foreach ($request->payments as $payment) {
+                $saleInvoice->salePayments()->create($payment);
+            }
+        }
+
+        // Handle returns
+        if ($request->has('returns')) {
+            foreach ($request->returns as $return) {
+                $saleReturn = $saleInvoice->saleReturns()->create($return);
+                if (isset($return['items'])) {
+                    foreach ($return['items'] as $returnItem) {
+                        $saleReturn->saleReturnItems()->create($returnItem);
+                    }
+                }
+            }
+        }
         return redirect()->route('sales.index')->with('success', 'Sale invoice created successfully');
     }
 
@@ -99,9 +125,29 @@ class SaleInvoiceController extends Controller
             'round_off' => 'nullable|numeric',
             'total_amount' => 'required|numeric',
             'status' => 'required|string',
-            'customer_phone' => 'nullable|string'
+            'phone' => 'nullable|string'
         ]);
         $saleInvoice->update($validatedData);
+        // Handle items
+        $saleInvoice->saleInvoiceItems()->delete();
+        foreach ($request->items as $item) {
+            $saleInvoice->saleInvoiceItems()->create($item);
+        }
+
+        // Handle payments
+        $saleInvoice->salePayments()->delete();
+        foreach ($request->payments as $payment) {
+            $saleInvoice->salePayments()->create($payment);
+        }
+
+        // Handle returns
+        $saleInvoice->saleReturns()->delete();
+        foreach ($request->returns as $return) {
+            $saleReturn = $saleInvoice->saleReturns()->create($return);
+            foreach ($return['items'] as $returnItem) {
+                $saleReturn->saleReturnItems()->create($returnItem);
+            }
+        }
         return redirect()->route('sales.index')->with('success', 'Sale invoice updated successfully');
     }
 

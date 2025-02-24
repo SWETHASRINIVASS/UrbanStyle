@@ -1,4 +1,3 @@
-<!-- filepath: /c:/xampp/htdocs/UrbanStyle/resources/views/sales/show.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -49,7 +48,7 @@
                 </tr>
                 <tr>
                     <th>Customer Phone</th>
-                    <td>{{ $saleInvoice->customer_phone }}</td>
+                    <td>{{ $saleInvoice->phone }}</td>
                 </tr>
             </table>
             <a href="{{ route('sales.index') }}" class="btn btn-secondary mt-3">Back to List</a>

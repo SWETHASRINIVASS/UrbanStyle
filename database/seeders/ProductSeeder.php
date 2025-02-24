@@ -24,8 +24,8 @@ class ProductSeeder extends Seeder
                 'sale_price' => 2000,
                 'current_stock' => 100,
                 'hsn_code' => '1452',
-                'created_at'=> 'now()',
-                'updated_at'=> 'now()'
+                'created_at'=> now(),
+                'updated_at'=> now()
             ],
             [
                 'name'=> 'Jeans',
@@ -35,8 +35,8 @@ class ProductSeeder extends Seeder
                 'sale_price'=> 2500,
                 'current_stock'=> 100,
                 'hsn_code'=> '1452',
-                'created_at'=> 'now()',
-                'updated_at'=> 'now()'
+                'created_at'=> now(),
+                'updated_at'=> now()
             ],
 
             [
@@ -47,8 +47,8 @@ class ProductSeeder extends Seeder
                 'sale_price'=> 1500,
                 'current_stock'=> 100,
                 'hsn_code'=> '7896',
-                'created_at'=> 'now()',
-                'updated_at'=> 'now()'
+                'created_at'=> now(),
+                'updated_at'=> now()
             ]
 
         ]);

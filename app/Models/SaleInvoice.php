@@ -11,7 +11,7 @@ class SaleInvoice extends Model
 
     protected $fillable = [
         'customer_id', 'invoice_number', 'date', 'amount', 'discount', 
-        'tax_price', 'round_off', 'total_amount', 'status', 'customer_phone'
+        'tax_price', 'round_off', 'total_amount', 'status', 'phone'
     ];
 
     public function customer()
@@ -27,5 +27,10 @@ class SaleInvoice extends Model
     public function salePayments()
     {
         return $this->hasMany(SalePayment::class);
+    }
+
+    public function SaleReturns()
+    {
+        return $this->hasOne(SaleReturn::class);
     }
 }

@@ -51,8 +51,10 @@
                 </div>
                 <div class="form-group">
                     <label for="customer_phone">Customer Phone</label>
-                    <input type="text" name="customer_phone" id="customer_phone" class="form-control">
+                    <input type="text" name="phone" id="customer_phone" class="form-control">
                 </div>
+
+                
                 <button type="submit" class="btn btn-primary mt-3">Save</button>
                 <a href="{{ route('sales.index') }}" class="btn btn-secondary mt-3">Cancel</a>
             </form>

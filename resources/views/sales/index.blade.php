@@ -16,6 +16,7 @@
                         <th>Date</th>
                         <th>Total Amount</th>
                         <th>Status</th>
+                        <th>phone</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -28,6 +29,7 @@
                             <td>{{ $saleInvoice->date }}</td>
                             <td>{{ $saleInvoice->total_amount }}</td>
                             <td>{{ $saleInvoice->status }}</td>
+                            <td>{{ $saleInvoice->phone }}</td>
                             <td>
                                 <a href="{{ route('sales.show', $saleInvoice->id) }}" class="btn btn-info">View</a>
                                 <a href="{{ route('sales.edit', $saleInvoice->id) }}" class="btn btn-warning">Edit</a>
