@@ -12,8 +12,8 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        return response()->json(Expense::all());
-
+        $expenses = Expense::all();
+        return view('expenses.index', compact('expenses'));
     }
 
     /**
@@ -21,7 +21,7 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        //
+        return view('expenses.create');
     }
 
     /**
@@ -35,8 +35,9 @@ class ExpenseController extends Controller
             'date' => 'required|date',
             'description' => 'nullable|string'
         ]);
-        $expense = Expense::create($validatedData);
-        return response()->json(['message' => 'Expense created successfully', 'data' => $expense], 201);
+
+        Expense::create($validatedData);
+        return redirect()->route('expenses.index')->with('success', 'Expense created successfully');
     }
 
     /**
@@ -44,7 +45,8 @@ class ExpenseController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+        return view('expenses.show', compact('expense'));
     }
 
     /**
@@ -52,7 +54,8 @@ class ExpenseController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+        return view('expenses.edit', compact('expense'));
     }
 
     /**
@@ -60,7 +63,17 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric',
+            'date' => 'required|date',
+            'description' => 'nullable|string'
+        ]);
+
+        $expense->update($validatedData);
+        return redirect()->route('expenses.index')->with('success', 'Expense updated successfully');
     }
 
     /**
@@ -68,6 +81,8 @@ class ExpenseController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+        $expense->delete();
+        return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully');
     }
 }

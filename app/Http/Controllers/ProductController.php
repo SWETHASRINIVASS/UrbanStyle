@@ -15,7 +15,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with(['category', 'supplier'])->get();
-        return view('products.index',compact('products'));
+        return view('products.index', compact('products'));
     }
 
     /**
@@ -25,7 +25,7 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $suppliers = Supplier::all();
-        return view('products.create',compact('categories','suppliers'));
+        return view('products.create', compact('categories', 'suppliers'));
     }
 
     /**
@@ -42,7 +42,8 @@ class ProductController extends Controller
             'current_stock' => 'required|integer',
             'hsn_code' => 'nullable|string'
         ]);
-        $product = Product::create($validatedData);
+
+        Product::create($validatedData);
         return redirect()->route('products.index')->with('success', 'Product created successfully');
     }
 
@@ -51,10 +52,8 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with(['category', 'supplier'])->find($id);
-        if (!$product) {
-            return redirect()->route('products.index')->with('error', 'Product not found');
-        }
+        $product = Product::with(['category', 'supplier'])->findOrFail($id);
+        
         return view('products.show', compact('product'));
     }
 
@@ -64,11 +63,8 @@ class ProductController extends Controller
     public function edit(string $id)
     {
         $product = Product::find($id);
-        if (!$product) {
-            return redirect()->route('products.index')->with('error', 'Product not found');
-        }
-        $suppliers = Supplier::all();
         $categories = Category::all();
+        $suppliers = Supplier::all();
         return view('products.edit', compact('product', 'categories', 'suppliers'));
     }
 
@@ -78,9 +74,6 @@ class ProductController extends Controller
     public function update(Request $request, string $id)
     {
         $product = Product::find($id);
-        if (!$product) {
-            return redirect()->route('products.index')->with('error', 'Product not found');
-        }
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
@@ -101,10 +94,7 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product::find($id);
-        if (!$product) {
-            return redirect()->route('products.index')->with('error', 'Product not found');
-        }
+        $product = Product::findOrFail($id);
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully');
     }
