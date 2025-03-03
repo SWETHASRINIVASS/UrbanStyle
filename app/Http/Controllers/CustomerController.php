@@ -14,7 +14,6 @@ class CustomerController extends Controller
     {
         $customers = Customer::all();
         return view("Customers.index", compact("customers"));
-        // return response()->json(Customer::with('saleInvoices')->get());
 
     }
 
@@ -23,7 +22,8 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view("customers.create");
+        $customers = Customer::all();
+        return view("customers.create", compact("customers"));
     }
 
     /**
@@ -69,6 +69,7 @@ class CustomerController extends Controller
         if (!$customer) {
             return redirect()->route('customers.index')->with('error', 'Customer not found');
         }
+        $customer = Customer::findOrFail($id);
         return view('customers.edit', compact('customer'));
     }
 

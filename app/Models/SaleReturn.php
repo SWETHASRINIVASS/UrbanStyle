@@ -16,7 +16,7 @@ class SaleReturn extends Model
 
     public function saleInvoice()
     {
-        return $this->belongsTo(SaleInvoice::class);
+        return $this->belongsTo(SaleInvoice::class,'sale_invoice_id');
     }
 
     public function product()

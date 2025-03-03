@@ -11,7 +11,7 @@ class SaleInvoiceItem extends Model
 
     protected $fillable = [
         'sale_invoice_id', 'product_id', 'quantity', 
-        'amount', 'discount', 'tax_price', 'total_amount', 'date_time'
+        'amount', 'discount', 'tax_price', 'total_amount', 'date'
     ];
 
     public function saleInvoice()

@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'UrbanStyle') }}</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-
+    <title>@yield('title', 'Retail Billing System')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url('/') }}">
-            {{ config('app.name', 'UrbanStyle') }}
-        </a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('categories.index') }}">Categories</a>
-                </li>
-                <!-- Add more navigation links as needed -->
+<body class="bg-gray-50">
+
+    <!-- Navigation -->
+    <nav class="bg-gray-800 p-4 text-white">
+        <div class="container mx-auto flex justify-between">
+            <a href="{{ route('sales.index') }}" class="text-lg font-bold">Urban Style</a>
+            <ul class="flex gap-4">
+                <li><a href="{{ route('customers.index') }}" class="hover:underline">Customer</a></li>
+                <li><a href="{{ route('suppliers.index') }}" class="hover:underline">Supplier</a></li>
+                <li><a href="{{ route('products.index') }}" class="hover:underline">Product</a></li>
+                <li><a href="{{ route('sales.index') }}" class="hover:underline">Sale</a></li>
+                <li><a href="{{ route('purchases.index') }}" class="hover:underline">Purchase</a></li>
+                <li><a href="{{ route('expenses.index') }}" class="hover:underline">Expenses</a></li>
             </ul>
         </div>
     </nav>
 
-    <main class="py-4">
+    <!-- Content -->
+    <div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
         @yield('content')
-    </main>
+    </div>
 
-    
-    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>

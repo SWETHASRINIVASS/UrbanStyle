@@ -28,18 +28,6 @@ class SupplierSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-            [
-                'name'=> 'xyz',
-                'phone' => '9876543210',
-                'address_line_1' => '123 street',
-                'address_line_2'=> '123 street',
-                'city'=> 'coimbatore',
-                'state'=> 'tamilnadu',
-                'country'=> 'india',
-                'pin_code'=> '478512',
-                'created_at'=> now(),
-                'updated_at'=> now()
-            ]
         ]);
     }
 }

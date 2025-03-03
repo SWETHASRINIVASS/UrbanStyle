@@ -1,53 +1,49 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <div class="row">
         <div class="col-md-12">
-            <h1>Purchase Invoice Details</h1>
-            <table class="table table-bordered">
-                <tr>
-                    <th>ID</th>
-                    <td>{{ $purchaseInvoice->id }}</td>
+            <h1 class="text-2xl font bold mb-4">Purchase Invoice Details</h1>
+            <table class="table-auto w-full bg-gray-100 shadow-md rounded-lg">
+                <tbody>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2 text-left">ID</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->id }}</td>
                 </tr>
                 <tr>
-                    <th>Supplier</th>
-                    <td>{{ $purchaseInvoice->supplier->name }}</td>
+                    <th class="px-4 py-2 text-left">Supplier</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->supplier->name }}</td>
+                </tr>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2 text-left">Invoice Number</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->invoice_number }}</td>
                 </tr>
                 <tr>
-                    <th>Invoice Number</th>
-                    <td>{{ $purchaseInvoice->invoice_number }}</td>
+                    <th class="px-4 py-2 text-left">Invoice Date</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->invoice_date }}</td>
+                </tr>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2 text-left">Total Amount</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->total_amount }}</td>
                 </tr>
                 <tr>
-                    <th>Date</th>
-                    <td>{{ $purchaseInvoice->invoice_date }}</td>
+                    <th class="px-4 py-2 text-left">Paid Amount</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->paid_amount }}</td>
+                </tr>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2 text-left">Due Amount</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->due_amount }}</td>
                 </tr>
                 <tr>
-                    <th>Amount</th>
-                    <td>{{ $purchaseInvoice->amount }}</td>
+                    <th class="px-4 py-2 text-left">Status</th>
+                    <td class="px-4 py-2">{{ $purchaseInvoice->status }}</td>
                 </tr>
-                <tr>
-                    <th>Discount</th>
-                    <td>{{ $purchaseInvoice->discount }}</td>
-                </tr>
-                <tr>
-                    <th>Tax Price</th>
-                    <td>{{ $purchaseInvoice->tax_price }}</td>
-                </tr>
-                <tr>
-                    <th>Round Off</th>
-                    <td>{{ $purchaseInvoice->round_off }}</td>
-                </tr>
-                <tr>
-                    <th>Total Amount</th>
-                    <td>{{ $purchaseInvoice->total_amount }}</td>
-                </tr>
-                <tr>
-                    <th>Status</th>
-                    <td>{{ $purchaseInvoice->status }}</td>
-                </tr>
+                </tbody>
             </table>
-            <a href="{{ route('purchases.index') }}" class="btn btn-secondary mt-3">Back to List</a>
+            <br>
+            <a href="{{ route('purchases.edit', $purchaseInvoice->id) }}" class="bg-gray-800 text-white px-4 py-2 rounded">Edit</a>
+            <a href="{{ route('purchases.index') }}" class="bg-gray-800 text-white px-4 py-2 rounded">Back</a>
         </div>
     </div>
 </div>

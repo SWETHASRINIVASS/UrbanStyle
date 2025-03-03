@@ -15,15 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
-            $table->decimal('amount', 10, 2);
-            $table->decimal('discount', 10, 2)->nullable();
-            $table->decimal('tax_price', 10, 2)->nullable();
-            $table->decimal('round_off', 10, 2)->nullable();
+            $table->dateTime('invoice_date');
             $table->decimal('total_amount', 10, 2);
-            $table->string('status');
-            $table->dateTime('date');
-            $table->string('payment_mode');
+            $table->decimal('paid_amount', 10, 2)->default(0);
+            $table->decimal('due_amount', 10, 2);
+            $table->enum('status', ['pending', 'completed'])->default('pending');
             $table->timestamps();
+            
         });
     }
 

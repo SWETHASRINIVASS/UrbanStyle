@@ -119,7 +119,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function edit(string $id)
     {
-        $purchaseInvoice = PurchaseInvoice::find($id);
+        $purchaseInvoice = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems', 'purchasePayments', 'purchaseReturn.purchaseReturnItems'])->find($id);
         if (!$purchaseInvoice) {
             return redirect()->route('purchases.index')->with('error', 'Purchase Invoice not found');
         }

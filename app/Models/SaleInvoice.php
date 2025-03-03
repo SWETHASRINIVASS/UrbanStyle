@@ -19,18 +19,18 @@ class SaleInvoice extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function saleInvoiceItems()
+    public function SaleInvoiceItems()
     {
-        return $this->hasMany(SaleInvoiceItem::class);
+        return $this->hasMany(SaleInvoiceItem::class,'sale_invoice_id');
     }
 
-    public function salePayments()
+    public function SalePayments()
     {
-        return $this->hasMany(SalePayment::class);
+        return $this->hasMany(SalePayment::class, 'sale_invoice_id');
     }
 
     public function SaleReturns()
     {
-        return $this->hasOne(SaleReturn::class);
+        return $this->hasOne(SaleReturn::class, 'sale_invoice_id');
     }
 }

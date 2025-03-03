@@ -18,7 +18,7 @@ class SaleInvoiceController extends Controller
      */
     public function index()
     {
-        $saleInvoices = SaleInvoice::with(['SaleInvoiceItems', 'SalePayments', 'SaleReturns'])->get();
+        $saleInvoices = SaleInvoice::with(['SaleInvoiceItems', 'SalePayments', 'SaleReturns.SaleReturnItems'])->get();
         return view('sales.index', compact('saleInvoices'));
 
 
@@ -85,7 +85,7 @@ class SaleInvoiceController extends Controller
      */
     public function show(string $id)
     {
-        $saleInvoice = SaleInvoice::with(['customer', 'saleInvoiceItems', 'salePayments','saleReturn.saleReturnItems'])->find($id);
+        $saleInvoice = SaleInvoice::with(['customer', 'saleInvoiceItems', 'salePayments','saleReturns.saleReturnItems'])->find($id);
         if (!$saleInvoice) {
             return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
         }
@@ -130,22 +130,30 @@ class SaleInvoiceController extends Controller
         $saleInvoice->update($validatedData);
         // Handle items
         $saleInvoice->saleInvoiceItems()->delete();
-        foreach ($request->items as $item) {
-            $saleInvoice->saleInvoiceItems()->create($item);
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
+                $saleInvoice->saleInvoiceItem()->create($item);
+            }
         }
 
         // Handle payments
         $saleInvoice->salePayments()->delete();
-        foreach ($request->payments as $payment) {
-            $saleInvoice->salePayments()->create($payment);
+        if ($request->has('payments')) {
+            foreach ($request->payments as $payment) {
+                $saleInvoice->salePayment()->create($payment);
+            }
         }
 
         // Handle returns
         $saleInvoice->saleReturns()->delete();
-        foreach ($request->returns as $return) {
-            $saleReturn = $saleInvoice->saleReturns()->create($return);
-            foreach ($return['items'] as $returnItem) {
-                $saleReturn->saleReturnItems()->create($returnItem);
+        if ($request->has('returns')) {
+            foreach ($request->returns as $return) {
+                $saleReturn = $saleInvoice->saleReturn()->create($return);
+                if (isset($return['items'])) {
+                    foreach ($return['items'] as $returnItem) {
+                        $saleReturn->saleReturnItem()->create($returnItem);
+                    }
+                }
             }
         }
         return redirect()->route('sales.index')->with('success', 'Sale invoice updated successfully');

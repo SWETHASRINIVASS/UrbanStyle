@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Supplier;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchasePayment;
+use App\models\Product;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
@@ -34,6 +35,7 @@ class SupplierController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255|unique:suppliers',
             'phone' => 'required|string|max:20|unique:suppliers',
+            'email' => 'nullable|email|unique:suppliers',
             'address_line_1' => 'nullable|string',
             'address_line_2' => 'nullable|string',
             'city' => 'nullable|string',
@@ -42,7 +44,7 @@ class SupplierController extends Controller
             'pin_code' => 'nullable|string'
         ]);
 
-        $supplier = Supplier::create($validatedData);
+        Supplier::create($validatedData);
         return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully');
         }
 
@@ -61,14 +63,17 @@ class SupplierController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        $supplier = Supplier::find($id);
-        if (!$supplier) {
-            return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
-        }
-        return view('suppliers.edit', compact('supplier'));
+    public function edit( string $id)
+{
+    $supplier = Supplier::find($id);
+    if (!$supplier) {
+        return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
     }
+    
+    $suppliers = Supplier::all(); 
+    
+    return view('suppliers.edit', compact('supplier', 'suppliers'));
+}
 
     /**
      * Update the specified resource in storage.
@@ -83,6 +88,7 @@ class SupplierController extends Controller
         $validatedData = $request->validate([
            'name' => 'required|string|max:255|unique:suppliers',
             'phone' => 'required|string|max:20|unique:suppliers',
+            'email' => 'nullable|email|unique:suppliers',
             'address_line_1' => 'nullable|string',
             'address_line_2' => 'nullable|string',
             'city' => 'nullable|string',
