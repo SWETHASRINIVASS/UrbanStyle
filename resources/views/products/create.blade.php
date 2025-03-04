@@ -11,17 +11,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <div class="form-group mb-4">
-                    <label for="name" class="block text-gray-700">Product Name</label>
-                    <input type="text" name="name" id="name" class="form-control mt-1 block w-full" required>
-                </div>
-
-                <div class="form-group mb-4">
                     <label for="category_id" class="block text-gray-700">Category</label>
                     <select name="category_id" id="category_id" class="form-control mt-1 block w-full" required>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="name" class="block text-gray-700">Product Name</label>
+                    <input type="text" name="name" id="name" class="form-control mt-1 block w-full" required>
                 </div>
 
                 <div class="form-group mb-4">

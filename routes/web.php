@@ -11,6 +11,7 @@ use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\SaleInvoiceController;
 use App\Http\Controllers\TaxController;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -37,6 +38,9 @@ Route::resource('expenses', ExpenseController::class);
 Route::resource('purchases', PurchaseInvoiceController::class);
 Route::resource('sales', SaleInvoiceController::class);
 Route::resource('taxes', TaxController::class);
+
+
+Route::put('/sales/{sale}', [SaleInvoiceController::class, 'update'])->name('sales.update');
 
 // payments, invoice, returns routes
 

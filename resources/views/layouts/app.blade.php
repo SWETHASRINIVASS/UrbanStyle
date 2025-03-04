@@ -15,6 +15,7 @@
             <ul class="flex gap-4">
                 <li><a href="{{ route('customers.index') }}" class="hover:underline">Customer</a></li>
                 <li><a href="{{ route('suppliers.index') }}" class="hover:underline">Supplier</a></li>
+                <li><a href="{{ route('categories.index') }}" class="hover:underline">Category</a></li>
                 <li><a href="{{ route('products.index') }}" class="hover:underline">Product</a></li>
                 <li><a href="{{ route('sales.index') }}" class="hover:underline">Sale</a></li>
                 <li><a href="{{ route('purchases.index') }}" class="hover:underline">Purchase</a></li>

@@ -14,15 +14,13 @@ return new class extends Migration
         Schema::create('sale_invoices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('invoice_no')->unique();
-            $table->dateTime('date');
-            $table->decimal('amount', 10, 2);
-            $table->decimal('discount', 10, 2)->nullable();
-            $table->decimal('tax_price', 10, 2)->nullable();
-            $table->decimal('round_off', 10, 2)->nullable();
-            $table->decimal('total_amount', 10, 2);
-            $table->string('status');
-            $table->string('phone')->nullable();
+            $table->string('invoice_number')->unique();
+            $table->date('invoice_date');
+            $table->decimal('tax_rate', 5, 2);
+            $table->decimal('subtotal', 15, 2);
+            $table->decimal('tax_amount', 15, 2);
+            $table->decimal('total_amount', 15, 2);
+            $table->enum('status', ['pending', 'completed'])->default('pending');
             $table->timestamps();
         });
     }

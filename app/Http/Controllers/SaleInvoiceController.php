@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceItem;
-use App\Models\SalePayment;
-use App\Models\SaleReturn;
-use App\Models\SaleReturnItem;
 use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -18,10 +15,8 @@ class SaleInvoiceController extends Controller
      */
     public function index()
     {
-        $saleInvoices = SaleInvoice::with(['SaleInvoiceItems', 'SalePayments', 'SaleReturns.SaleReturnItems'])->get();
+        $saleInvoices = SaleInvoice::with(['customer', 'saleInvoiceItems.product'])->get();
         return view('sales.index', compact('saleInvoices'));
-
-
     }
 
     /**
@@ -42,41 +37,26 @@ class SaleInvoiceController extends Controller
         $validatedData = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'invoice_number' => 'required|string|unique:sale_invoices',
-            'date' => 'required|date',
-            'amount' => 'required|numeric',
-            'discount' => 'nullable|numeric',
-            'tax_price' => 'nullable|numeric',
-            'round_off' => 'nullable|numeric',
+            'invoice_date' => 'required|date',
+            'tax_rate' => 'required|numeric',
+            'subtotal' => 'required|numeric',
+            'tax_amount' => 'required|numeric',
             'total_amount' => 'required|numeric',
             'status' => 'required|string',
-            'phone' => 'nullable|string'
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.price' => 'required|numeric',
         ]);
+
         $saleInvoice = SaleInvoice::create($validatedData);
+
         // Handle items
-        if ($request->has('items')) {
-            foreach ($request->items as $item) {
-                $saleInvoice->saleInvoiceItems()->create($item);
-            }
+        foreach ($request->items as $item) {
+            $item['subtotal'] = $item['quantity'] * $item['price'];
+            $saleInvoice->saleInvoiceItems()->create($item);
         }
 
-        // Handle payments
-        if ($request->has('payments')) {
-            foreach ($request->payments as $payment) {
-                $saleInvoice->salePayments()->create($payment);
-            }
-        }
-
-        // Handle returns
-        if ($request->has('returns')) {
-            foreach ($request->returns as $return) {
-                $saleReturn = $saleInvoice->saleReturns()->create($return);
-                if (isset($return['items'])) {
-                    foreach ($return['items'] as $returnItem) {
-                        $saleReturn->saleReturnItems()->create($returnItem);
-                    }
-                }
-            }
-        }
         return redirect()->route('sales.index')->with('success', 'Sale invoice created successfully');
     }
 
@@ -85,10 +65,7 @@ class SaleInvoiceController extends Controller
      */
     public function show(string $id)
     {
-        $saleInvoice = SaleInvoice::with(['customer', 'saleInvoiceItems', 'salePayments','saleReturns.saleReturnItems'])->find($id);
-        if (!$saleInvoice) {
-            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
-        }
+        $saleInvoice = SaleInvoice::with(['customer', 'saleInvoiceItems.product'])->findOrFail($id);
         return view('sales.show', compact('saleInvoice'));
     }
 
@@ -97,13 +74,10 @@ class SaleInvoiceController extends Controller
      */
     public function edit(string $id)
     {
-        $saleInvoice = SaleInvoice::find($id);
-        if (!$saleInvoice) {
-            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
-        }
+        $saleInvoice = SaleInvoice::with('saleInvoiceItems')->findOrFail($id);
         $customers = Customer::all();
         $products = Product::all();
-        return view('sales.edit', compact('saleInvoice','customers','products'));
+        return view('sales.edit', compact('saleInvoice', 'customers', 'products'));
     }
 
     /**
@@ -111,51 +85,32 @@ class SaleInvoiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $saleInvoice = SaleInvoice::find($id);
-        if (!$saleInvoice) {
-            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
-        }
+        $saleInvoice = SaleInvoice::findOrFail($id);
+
         $validatedData = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'invoice_number' => 'required|string|unique:sale_invoices,invoice_number,' . $id,
-            'date' => 'required|date',
-            'amount' => 'required|numeric',
-            'discount' => 'nullable|numeric',
-            'tax_price' => 'nullable|numeric',
-            'round_off' => 'nullable|numeric',
+            'invoice_date' => 'required|date',
+            'tax_rate' => 'required|numeric',
+            'subtotal' => 'required|numeric',
+            'tax_amount' => 'required|numeric',
             'total_amount' => 'required|numeric',
             'status' => 'required|string',
-            'phone' => 'nullable|string'
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.price' => 'required|numeric',
         ]);
+
         $saleInvoice->update($validatedData);
+
         // Handle items
         $saleInvoice->saleInvoiceItems()->delete();
-        if ($request->has('items')) {
-            foreach ($request->items as $item) {
-                $saleInvoice->saleInvoiceItem()->create($item);
-            }
+        foreach ($request->items as $item) {
+            $item['subtotal'] = $item['quantity'] * $item['price'];
+            $saleInvoice->saleInvoiceItems()->create($item);
         }
 
-        // Handle payments
-        $saleInvoice->salePayments()->delete();
-        if ($request->has('payments')) {
-            foreach ($request->payments as $payment) {
-                $saleInvoice->salePayment()->create($payment);
-            }
-        }
-
-        // Handle returns
-        $saleInvoice->saleReturns()->delete();
-        if ($request->has('returns')) {
-            foreach ($request->returns as $return) {
-                $saleReturn = $saleInvoice->saleReturn()->create($return);
-                if (isset($return['items'])) {
-                    foreach ($return['items'] as $returnItem) {
-                        $saleReturn->saleReturnItem()->create($returnItem);
-                    }
-                }
-            }
-        }
         return redirect()->route('sales.index')->with('success', 'Sale invoice updated successfully');
     }
 
@@ -164,62 +119,8 @@ class SaleInvoiceController extends Controller
      */
     public function destroy(string $id)
     {
-        $saleInvoice = SaleInvoice::find($id);
-        if (!$saleInvoice) {
-            return redirect()->route('sales.index')->with('error', 'Sale Invoice not found');
-        }
+        $saleInvoice = SaleInvoice::findOrFail($id);
         $saleInvoice->delete();
         return redirect()->route('sales.index')->with('success', 'Sale invoice deleted successfully');
-    }
-
-    // store sale payment
-    public function storePayment(Request $request)
-    {
-        $validatedData = $request->validate([
-            'sale_invoice_id' => 'required|exists:sale_invoices,id',
-            'amount' => 'required|numeric',
-            'round_off' => 'nullable|numeric',
-            'total-amount' => 'required|numeric',
-            'date' => 'required|date',
-            'payment_method' => 'required|string',
-            'balance_due' => 'nullable|numeric',
-            'status' => 'required|string'
-
-        ]);
-        $salePayment = SalePayment::create($validatedData);
-        return redirect()->route('sales.show', $validatedData['sale_invoice_id'])->with('success', 'Sale payment added successfully');
-    }
-    // store sale return
-    public function storeReturn(Request $request)
-    {
-        $validatedData = $request->validate([
-            'sale_invoice_id' => 'required|exists:sale_invoices,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric',
-            'return_reason' => 'required|string',
-            'refund_amount' => 'required|numeric',
-            'refund_date' => 'required|date',
-
-        ]);
-        $saleReturn = SaleReturn::create($validatedData);
-        return redirect()->route('sales.show', $validatedData['sale_invoice_id'])->with('success', 'Sale return added successfully');
-    }
-    // store sale return item
-    public function storeReturnItem(Request $request)
-    {
-        $validatedData = $request->validate([
-            'sale_return_id' => 'required|exists:sale_returns,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer',
-            'sale_price' => 'required|numeric',
-            'tax_price' => 'nullable|numeric',
-            'discount' => 'nullable|numeric',
-            'round_off' => 'nullable|numeric',
-            'total_amount' => 'required|numeric',
-            'return_amount' => 'required|numeric'
-        ]);
-
-        $saleReturnItem = SalereturnItem::create($validatedData);
-        return redirect()->route('sales.show', $validatedData['sale_return_id'])->with('success', 'Sale return item added successfully');
     }
 }

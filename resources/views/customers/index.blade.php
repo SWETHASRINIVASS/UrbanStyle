@@ -13,6 +13,7 @@
                         <th class="p-2 border">ID</th>
                         <th class="p-2 border">Name</th>
                         <th class="p-2 border">Phone</th>
+                        <th class="p-2 border">Address</th>
                         <th class="p-2 border">Email</th>
                         <th class="p-2 border">Actions</th>
                     </tr>
@@ -23,6 +24,7 @@
                             <td class="p-2 border">{{ $customer->id }}</td>
                             <td class="p-2 border">{{ $customer->name }}</td>
                             <td class="p-2 border">{{ $customer->phone }}</td>
+                            <td class="p-2 border">{{ $customer->address_line_1}}</td>
                             <td class="p-2 border">{{ $customer->email }}</td>
                             <td class="p-2 border">
                                 <a href="{{ route('customers.show', $customer->id) }}" class="text-blue-500">View</a>

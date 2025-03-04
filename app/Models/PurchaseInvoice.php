@@ -10,8 +10,7 @@ class PurchaseInvoice extends Model
     use HasFactory;
 
     protected $fillable = [
-        'supplier_id', 'invoice_number', 'invoice_date', 'total_amount', 'paid_amount', 
-        'due_amount',  'status'
+        'supplier_id', 'invoice_number', 'invoice_date','tax_rate','subtotal','tax_amount', 'total_amount', 'status'
     ];
 
     public function supplier()
@@ -29,7 +28,7 @@ class PurchaseInvoice extends Model
         return $this->hasMany(PurchasePayment::class);
     }
 
-    public function purchaseReturn()
+    public function purchaseReturns()
     {
         return $this->hasOne(PurchaseReturn::class, 'purchase_invoice_id');
     }

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\PurchaseInvoice;
+use App\Models\PurchaseInvoiceItem;
 use App\Models\PurchasePayment;
 use App\Models\PurchaseReturn;
 use App\Models\PurchaseReturnItem;
 use App\Models\Supplier;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class PurchaseInvoiceController extends Controller
@@ -16,7 +18,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function index()
     {
-        $purchaseInvoices = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems', 'purchasePayments', 'purchaseReturn.purchaseReturnItems'])->get();
+        $purchaseInvoices = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems.product'])->get();
         return view('purchases.index', compact('purchaseInvoices'));
     }
 
@@ -26,7 +28,8 @@ class PurchaseInvoiceController extends Controller
     public function create()
     {
         $suppliers = Supplier::all();
-        return view('purchases.create', compact('suppliers'));
+        $products = Product::all();
+        return view('purchases.create', compact('suppliers', 'products'));
     }
 
     /**
@@ -38,14 +41,89 @@ class PurchaseInvoiceController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'invoice_number' => 'required|string|unique:purchase_invoices',
             'invoice_date' => 'required|date',
+            'tax_rate' => 'required|numeric',
+            'subtotal' => 'required|numeric',
+            'tax_amount' => 'required|numeric',
             'total_amount' => 'required|numeric',
-            'paid_amount' => 'required|numeric',
-            'due_amount' => 'required|numeric',
-            'status' => 'required|string'
+            'status' => 'required|string',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.price' => 'required|numeric',
         ]);
 
         $purchaseInvoice = PurchaseInvoice::create($validatedData);
-        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice created successfully');
+
+        foreach ($request->items as $item) {
+            $item['subtotal'] = $item['quantity'] * $item['price'];
+            $purchaseInvoice->purchaseInvoiceItems()->create($item);
+        }
+
+        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice Created Successfully');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $purchaseInvoice = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems.product', 'purchasePayments', 'purchaseReturns.purchaseReturnItems'])->findOrFail($id);
+        return view('purchases.show', compact('purchaseInvoice'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $purchaseInvoice = PurchaseInvoice::with('purchaseInvoiceItems')->findOrFail($id);
+        $suppliers = Supplier::all();
+        $products = Product::all();
+        return view('purchases.edit', compact('purchaseInvoice', 'suppliers', 'products'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $purchaseInvoice = PurchaseInvoice::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'invoice_number' => 'required|string|unique:purchase_invoices',
+            'invoice_date' => 'required|date',
+            'tax_rate' => 'required|numeric',
+            'subtotal' => 'required|numeric',
+            'tax_amount' => 'required|numeric',
+            'total_amount' => 'required|numeric',
+            'status' => 'required|string',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.price' => 'required|numeric',
+        ]);
+
+        $purchaseInvoice->update($validatedData);
+
+        // Handle items
+        $purchaseInvoice->purchaseInvoiceItems()->delete();
+        foreach ($request->items as $item) {
+            $item['subtotal'] = $item['quantity'] * $item['price'];
+            $purchaseInvoice->purchaseInvoiceItems()->create($item);
+        }
+
+        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice updated successfully');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $purchaseInvoice = PurchaseInvoice::findOrFail($id);
+        $purchaseInvoice->delete();
+        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice deleted successfully');
     }
 
     // store a purchase payment
@@ -62,7 +140,7 @@ class PurchaseInvoiceController extends Controller
             'status' => 'required|string'
         ]);
 
-        $purchasePayment = PurchasePayment::create($validatedData);
+        PurchasePayment::create($validatedData);
         return redirect()->route('purchases.index')->with('success', 'Purchase Payment added successfully');
     }
 
@@ -78,7 +156,7 @@ class PurchaseInvoiceController extends Controller
             'return_date' => 'required|date'
         ]);
 
-        $purchaseReturn = PurchaseReturn::create($validatedData);
+        PurchaseReturn::create($validatedData);
         return redirect()->route('purchases.index')->with('success', 'Purchase Return added successfully');
     }
 
@@ -98,70 +176,7 @@ class PurchaseInvoiceController extends Controller
             'return_date' => 'required|date'
         ]);
 
-        $purchaseReturnItem = PurchaseReturnItem::create($validatedData);
+        PurchaseReturnItem::create($validatedData);
         return redirect()->route('purchases.index')->with('success', 'Purchase Return Item added successfully');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $purchaseInvoice = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems', 'purchasePayments', 'purchaseReturn.purchaseReturnItems'])->find($id);
-        if (!$purchaseInvoice) {
-            return redirect()->route('purchases.index')->with('error', 'Purchase Invoice not found');
-        }
-        return view('purchases.show', compact('purchaseInvoice'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $purchaseInvoice = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems', 'purchasePayments', 'purchaseReturn.purchaseReturnItems'])->find($id);
-        if (!$purchaseInvoice) {
-            return redirect()->route('purchases.index')->with('error', 'Purchase Invoice not found');
-        }
-        $suppliers = Supplier::all();
-        return view('purchases.edit', compact('purchaseInvoice', 'suppliers'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $purchaseInvoice = PurchaseInvoice::find($id);
-        if (!$purchaseInvoice) {
-            return redirect()->route('purchases.index')->with('error', 'Purchase Invoice not found');
-        }
-
-        $validatedData = $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_number' => 'required|string|unique:purchase_invoices,invoice_number,' . $id,
-            'invoice_date' => 'required|date',
-            'total_amount' => 'required|numeric',
-            'paid_amount' => 'required|numeric',
-            'due_amount' => 'required|numeric',
-            'status' => 'required|string'
-        ]);
-
-        $purchaseInvoice->update($validatedData);
-        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice updated successfully');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $purchaseInvoice = PurchaseInvoice::find($id);
-        if (!$purchaseInvoice) {
-            return redirect()->route('purchases.index')->with('error', 'Purchase Invoice not found');
-        }
-
-        $purchaseInvoice->delete();
-        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice deleted successfully');
     }
 }

@@ -2,13 +2,13 @@
 
 @section('content')
 
-{{-- <div class="container mx-auto p-6 bg-white shadow-md rounded-lg"> --}}
+<div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-2xl font-bold mb-4">Add New Supplier</h1>           
-            
             <form action="{{ route('suppliers.store') }}" method="POST">
                 @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group mb-4">
                     <label for="name" class="block text-gray-700">Supplier Name</label>
                     <input type="text" name="name" id="name" class="form-control mt-1 block w-full" required>
@@ -53,6 +53,7 @@
                     <label for="pin_code" class="block text-gray-700">Pin Code</label>
                     <input type="text" name="pin_code" id="pin_code" class="form-control mt-1 block w-full">
                 </div>
+            </div>
 
                 <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded">Save</button>
                 <a href="{{ route('suppliers.index') }}" class="bg-gray-800 text-white px-4 py-2 rounded">Cancel</a>
