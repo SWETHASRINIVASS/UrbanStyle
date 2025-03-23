@@ -10,7 +10,10 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\SaleInvoiceController;
 use App\Http\Controllers\TaxController;
-
+use App\Http\Controllers\SalePaymentController;
+use App\Http\Controllers\PurchasePaymentController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -39,6 +42,8 @@ Route::resource('purchases', PurchaseInvoiceController::class);
 Route::resource('sales', SaleInvoiceController::class);
 Route::resource('taxes', TaxController::class);
 
+Route::resource('users', UserController::class);
+Route::resource('purchases', PurchaseInvoiceController::class);
 
 Route::put('/sales/{sale}', [SaleInvoiceController::class, 'update'])->name('sales.update');
 
@@ -53,3 +58,10 @@ Route::post('purchases/{id}/returns', [PurchaseInvoiceController::class, 'storeR
 Route::post('purchases/{id}/items', [PurchaseInvoiceController::class, 'storeReturnItem'])->name('purchaseReturns.storeReturnItem');
 
 
+Route::resource('sale_invoices', SaleInvoiceController::class);
+Route::resource('sale_payments', SalePaymentController::class);
+Route::resource('purchase_invoices', PurchaseInvoiceController::class);
+Route::resource('purchase_payments', PurchasePaymentController::class);
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/products/{id}', [ProductController::class, 'getProduct'])->name('products.get');

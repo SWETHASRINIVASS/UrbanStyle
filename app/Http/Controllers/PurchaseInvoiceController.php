@@ -6,10 +6,11 @@ use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceItem;
 use App\Models\PurchasePayment;
 use App\Models\PurchaseReturn;
-use App\Models\PurchaseReturnItem;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Models\Tax;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseInvoiceController extends Controller
 {
@@ -18,7 +19,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function index()
     {
-        $purchaseInvoices = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems.product'])->get();
+        $purchaseInvoices = PurchaseInvoice::with('supplier')->get();
         return view('purchases.index', compact('purchaseInvoices'));
     }
 
@@ -29,7 +30,8 @@ class PurchaseInvoiceController extends Controller
     {
         $suppliers = Supplier::all();
         $products = Product::all();
-        return view('purchases.create', compact('suppliers', 'products'));
+        $taxes = Tax::all();
+        return view('purchases.create', compact('suppliers', 'products', 'taxes'));
     }
 
     /**
@@ -39,27 +41,77 @@ class PurchaseInvoiceController extends Controller
     {
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_number' => 'required|string|unique:purchase_invoices',
             'invoice_date' => 'required|date',
-            'tax_rate' => 'required|numeric',
-            'subtotal' => 'required|numeric',
-            'tax_amount' => 'required|numeric',
-            'total_amount' => 'required|numeric',
-            'status' => 'required|string',
+            'round_off' => 'nullable|numeric',
+            'global_discount' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:1',
-            'items.*.price' => 'required|numeric',
+            'items.*.price' => 'required|numeric|min:0',
+            'items.*.tax_rate' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
         ]);
 
-        $purchaseInvoice = PurchaseInvoice::create($validatedData);
+        try {
+            DB::beginTransaction();
 
-        foreach ($request->items as $item) {
-            $item['subtotal'] = $item['quantity'] * $item['price'];
-            $purchaseInvoice->purchaseInvoiceItems()->create($item);
+            // Generate a unique invoice number
+            $lastInvoice = PurchaseInvoice::latest()->first();
+            $newInvoiceNumber = $lastInvoice ? 'INV-' . str_pad($lastInvoice->id + 1, 6, '0', STR_PAD_LEFT) : 'INV-000001';
+
+            // Create the purchase invoice
+            $purchaseInvoice = PurchaseInvoice::create([
+                'invoice_number' => $newInvoiceNumber,
+                'supplier_id' => $validatedData['supplier_id'],
+                'invoice_date' => $validatedData['invoice_date'],
+                'round_off' => $validatedData['round_off'] ?? 0,
+                'global_discount' => $validatedData['global_discount'] ?? 0,
+                'total_amount' => 0, // Will be updated later
+            ]);
+
+            $totalAmount = 0;
+
+            // Loop through items and create purchase invoice items
+            foreach ($validatedData['items'] as $item) {
+                $subtotal = $item['quantity'] * $item['price'];
+                $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
+                $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
+                $totalPrice = $subtotal - $discountAmount + $taxAmount;
+
+                PurchaseInvoiceItem::create([
+                    'purchase_invoice_id' => $purchaseInvoice->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'tax_rate' => $item['tax_rate'],
+                    'discount' => $item['discount'] ?? 0,
+                    'total_amount' => $totalPrice,
+                ]);
+
+                $totalAmount += $totalPrice;
+            }
+
+            // Apply global discount
+            $globalDiscountAmount = ($totalAmount * ($validatedData['global_discount'] ?? 0)) / 100;
+            $finalAmount = $totalAmount - $globalDiscountAmount;
+
+            // Apply round off
+            $roundedFinalAmount = round($finalAmount);
+            $roundOff = $roundedFinalAmount - $finalAmount;
+
+            // Update the total amount in the invoice
+            $purchaseInvoice->update([
+                'total_amount' => $roundedFinalAmount,
+                'round_off' => $roundOff,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('purchases.index')->with('success', 'Purchase Invoice Created Successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice Created Successfully');
     }
 
     /**
@@ -67,7 +119,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function show(string $id)
     {
-        $purchaseInvoice = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems.product', 'purchasePayments', 'purchaseReturns.purchaseReturnItems'])->findOrFail($id);
+        $purchaseInvoice = PurchaseInvoice::with(['supplier', 'purchaseInvoiceItems.product'])->findOrFail($id);
         return view('purchases.show', compact('purchaseInvoice'));
     }
 
@@ -79,7 +131,8 @@ class PurchaseInvoiceController extends Controller
         $purchaseInvoice = PurchaseInvoice::with('purchaseInvoiceItems')->findOrFail($id);
         $suppliers = Supplier::all();
         $products = Product::all();
-        return view('purchases.edit', compact('purchaseInvoice', 'suppliers', 'products'));
+        $taxes = Tax::all();
+        return view('purchases.edit', compact('purchaseInvoice', 'suppliers', 'products', 'taxes'));
     }
 
     /**
@@ -87,96 +140,110 @@ class PurchaseInvoiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $purchaseInvoice = PurchaseInvoice::findOrFail($id);
-
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_number' => 'required|string|unique:purchase_invoices',
             'invoice_date' => 'required|date',
-            'tax_rate' => 'required|numeric',
-            'subtotal' => 'required|numeric',
-            'tax_amount' => 'required|numeric',
-            'total_amount' => 'required|numeric',
-            'status' => 'required|string',
+            'round_off' => 'nullable|numeric',
+            'global_discount' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:1',
-            'items.*.price' => 'required|numeric',
+            'items.*.price' => 'required|numeric|min:0',
+            'items.*.tax_rate' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
         ]);
 
-        $purchaseInvoice->update($validatedData);
+        try {
+            DB::beginTransaction();
 
-        // Handle items
-        $purchaseInvoice->purchaseInvoiceItems()->delete();
-        foreach ($request->items as $item) {
-            $item['subtotal'] = $item['quantity'] * $item['price'];
-            $purchaseInvoice->purchaseInvoiceItems()->create($item);
+            $purchaseInvoice = PurchaseInvoice::findOrFail($id);
+
+            // Update the purchase invoice
+            $purchaseInvoice->update([
+                'supplier_id' => $validatedData['supplier_id'],
+                'invoice_date' => $validatedData['invoice_date'],
+                'round_off' => $validatedData['round_off'] ?? 0,
+                'global_discount' => $validatedData['global_discount'] ?? 0,
+            ]);
+
+            $totalAmount = 0;
+
+            // Delete existing items and recreate them
+            $purchaseInvoice->purchaseInvoiceItems()->delete();
+
+            foreach ($validatedData['items'] as $item) {
+                $subtotal = $item['quantity'] * $item['price'];
+                $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
+                $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
+                $totalPrice = $subtotal - $discountAmount + $taxAmount;
+
+                PurchaseInvoiceItem::create([
+                    'purchase_invoice_id' => $purchaseInvoice->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'tax_rate' => $item['tax_rate'],
+                    'discount' => $item['discount'] ?? 0,
+                    'total_amount' => $totalPrice,
+                ]);
+
+                $totalAmount += $totalPrice;
+            }
+
+            // Apply global discount
+            $globalDiscountAmount = ($totalAmount * ($validatedData['global_discount'] ?? 0)) / 100;
+            $finalAmount = $totalAmount - $globalDiscountAmount;
+
+            // Apply round off
+            $roundedFinalAmount = round($finalAmount);
+            $roundOff = $roundedFinalAmount - $finalAmount;
+
+            // Update the total amount in the invoice
+            $purchaseInvoice->update([
+                'total_amount' => $roundedFinalAmount,
+                'round_off' => $roundOff,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('purchases.index')->with('success', 'Purchase Invoice Updated Successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice updated successfully');
     }
+
+    public function getProduct($id)
+    {
+        $product = Product::find($id);
+    
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'price' => $product->price, // Replace 'price' with the actual column name in your products table
+            ]);
+        }
+    
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found',
+        ]);
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $purchaseInvoice = PurchaseInvoice::findOrFail($id);
-        $purchaseInvoice->delete();
-        return redirect()->route('purchases.index')->with('success', 'Purchase Invoice deleted successfully');
-    }
+        try {
+            $purchaseInvoice = PurchaseInvoice::findOrFail($id);
+            $purchaseInvoice->purchaseInvoiceItems()->delete();
+            $purchaseInvoice->delete();
 
-    // store a purchase payment
-    public function storePayment(Request $request)
-    {
-        $validatedData = $request->validate([
-            'purchase_invoice_id' => 'required|exists:purchase_invoices,id',
-            'amount' => 'required|numeric',
-            'round_off' => 'nullable|numeric',
-            'total_amount' => 'required|numeric',
-            'date' => 'required|date',
-            'payment_method' => 'required|string',
-            'balance_due' => 'nullable|numeric',
-            'status' => 'required|string'
-        ]);
-
-        PurchasePayment::create($validatedData);
-        return redirect()->route('purchases.index')->with('success', 'Purchase Payment added successfully');
-    }
-
-    // store purchase return
-    public function storeReturn(Request $request)
-    {
-        $validatedData = $request->validate([
-            'purchase_invoice_id' => 'required|exists:purchase_invoices,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric',
-            'return_reason' => 'required|string',
-            'return_amount' => 'required|numeric',
-            'return_date' => 'required|date'
-        ]);
-
-        PurchaseReturn::create($validatedData);
-        return redirect()->route('purchases.index')->with('success', 'Purchase Return added successfully');
-    }
-
-    // store purchase return item
-    public function storeReturnItem(Request $request)
-    {
-        $validatedData = $request->validate([
-            'purchase_return_id' => 'required|exists:purchase_returns,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer',
-            'purchase_price' => 'required|numeric',
-            'discount' => 'nullable|numeric',
-            'tax_rate' => 'nullable|numeric',
-            'tax_price' => 'nullable|numeric',
-            'round_off' => 'nullable|numeric',
-            'total_amount' => 'required|numeric',
-            'return_date' => 'required|date'
-        ]);
-
-        PurchaseReturnItem::create($validatedData);
-        return redirect()->route('purchases.index')->with('success', 'Purchase Return Item added successfully');
+            return redirect()->route('purchases.index')->with('success', 'Purchase Invoice Deleted Successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
+        }
     }
 }

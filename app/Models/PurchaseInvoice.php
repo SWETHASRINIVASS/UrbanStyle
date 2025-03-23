@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,12 @@ class PurchaseInvoice extends Model
     use HasFactory;
 
     protected $fillable = [
-        'supplier_id', 'invoice_number', 'invoice_date','tax_rate','subtotal','tax_amount', 'total_amount', 'status'
+        'invoice_number',
+        'supplier_id',
+        'invoice_date',
+        'round_off',
+        'global_discount',
+        'total_amount',
     ];
 
     public function supplier()

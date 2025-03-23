@@ -12,7 +12,8 @@ class TaxController extends Controller
      */
     public function index()
     {
-        return response()->json(Tax::all());
+        $taxes = Tax::all();
+        return view('taxes.index', compact('taxes'));
     }
 
     /**
@@ -20,7 +21,7 @@ class TaxController extends Controller
      */
     public function create()
     {
-        //
+        return view('taxes.create');
     }
 
     /**
@@ -32,8 +33,10 @@ class TaxController extends Controller
             'tax_name' => 'required|string|max:255',
             'tax_rate' => 'required|numeric'
         ]);
-        $tax = Tax::create($validatedData);
-        return response()->json(['message' => 'Tax created successfully', 'data' => $tax], 201);
+
+        Tax::create($validatedData);
+
+        return redirect()->route('taxes.index')->with('success', 'Tax created successfully');
     }
 
     /**
@@ -41,7 +44,8 @@ class TaxController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $tax = Tax::findOrFail($id);
+        return view('taxes.show', compact('tax'));
     }
 
     /**
@@ -49,7 +53,8 @@ class TaxController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $tax = Tax::findOrFail($id);
+        return view('taxes.edit', compact('tax'));
     }
 
     /**
@@ -57,7 +62,15 @@ class TaxController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validatedData = $request->validate([
+            'tax_name' => 'required|string|max:255',
+            'tax_rate' => 'required|numeric'
+        ]);
+
+        $tax = Tax::findOrFail($id);
+        $tax->update($validatedData);
+
+        return redirect()->route('taxes.index')->with('success', 'Tax updated successfully');
     }
 
     /**
@@ -65,6 +78,9 @@ class TaxController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $tax = Tax::findOrFail($id);
+        $tax->delete();
+
+        return redirect()->route('taxes.index')->with('success', 'Tax deleted successfully');
     }
 }

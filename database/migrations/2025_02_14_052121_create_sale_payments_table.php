@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sale_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_invoice_id')->constrained()->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->decimal('round_off', 10, 2)->nullable();
             $table->decimal('total_amount', 10, 2);

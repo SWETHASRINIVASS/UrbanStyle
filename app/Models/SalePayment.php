@@ -9,10 +9,15 @@ class SalePayment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sale_invoice_id', 'amount', 'round_off', 'total_amount', 'date', 'payment_method', 'balance_due', 'status'];
+    protected $fillable = ['sale_invoice_id','customer_id', 'amount', 'round_off', 'total_amount', 'date', 'payment_method', 'balance_due', 'status'];
 
     public function saleInvoice()
     {
         return $this->belongsTo(SaleInvoice::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

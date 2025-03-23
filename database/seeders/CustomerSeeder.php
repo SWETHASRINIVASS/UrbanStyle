@@ -17,15 +17,28 @@ class CustomerSeeder extends Seeder
     {
         DB::table("customers")->insert([
             [
-            'name' => 'swetha',
-            'email' => 'swetha@gmail.com',
-            'phone' => '12345678',
+            'name' => 'Thilaga',
+            'email' => 'thilaga@gmail.com',
+            'phone' => '1234567890',
             'address_line_1' => '123 street',
             'address_line_2' => '123 street',
             'city' => 'coimbatore',
             'state'=> 'tamilnadu',
             'country' => 'india',
             'pin_code' => '641001',
+            'created_at' => now(),
+            'updated_at' => now()
+            ],
+            [
+            'name' => 'sneha',
+            'email' => 'sneha@gmail.com',
+            'phone' => '9856321470',
+            'address_line_1' => '123 street',
+            'address_line_2' => '123 street',
+            'city' => 'coimbatore',
+            'state'=> 'tamilnadu',
+            'country' => 'india',
+            'pin_code' => '641002',
             'created_at' => now(),
             'updated_at' => now()
             ]

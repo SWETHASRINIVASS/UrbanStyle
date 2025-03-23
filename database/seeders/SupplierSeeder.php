@@ -17,8 +17,9 @@ class SupplierSeeder extends Seeder
     {
         DB::table("suppliers")->insert([
             [
-                'name' => 'abc',
-                'phone' => '4587961230',
+                'name' => 'xyz',
+                'phone' => '4587934160',
+                'email' => 'xyz@gmail.com',
                 'address_line_1' => '123 street',
                 'address_line_2' => '123 street',
                 'city' => 'coimbatore',
@@ -28,6 +29,19 @@ class SupplierSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ],
+            [
+                'name' => 'pqr',
+                'phone' => '4587961230',
+                'email' => 'pqr@gmail.com',
+                'address_line_1' => '123 street',
+                'address_line_2' => '123 street',
+                'city' => 'coimbatore',
+                'state' => 'tamilnadu',
+                'country' => 'india',
+                'pin_code' => '641002',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
         ]);
     }
 }

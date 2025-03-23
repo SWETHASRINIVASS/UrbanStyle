@@ -33,13 +33,17 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|in:Admin,Manager,Accountant,Sales',
+            'status' => 'required|boolean',
         ]);
 
         $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'status' => $request->status,
         ]);
 
         return redirect()->route('users.index')->with('success', 'User created successfully');
@@ -72,8 +76,9 @@ class UserController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'email' => 'required|string|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:Admin,Manager,Accountant,Sales',
+            'status' => 'required|in:Active,Inactive',
         ]);
 
         $user->name = $validatedData['name'];

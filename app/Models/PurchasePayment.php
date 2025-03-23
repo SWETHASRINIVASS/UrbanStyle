@@ -9,10 +9,15 @@ class PurchasePayment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['purchase_invoice_id', 'amount', 'round_off', 'total_amount', 'date', 'payment_method', 'balance_due', 'status'];
+    protected $fillable = ['purchase_invoice_id','supplier_id', 'amount', 'round_off', 'total_amount', 'date', 'payment_method', 'balance_due', 'status'];
 
     public function purchaseInvoice()
     {
         return $this->belongsTo(PurchaseInvoice::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 }

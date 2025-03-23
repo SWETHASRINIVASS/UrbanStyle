@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('purchase_invoices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
-            $table->dateTime('invoice_date');
-            $table->decimal('tax_rate', 5, 2);
-            $table->decimal('subtotal', 15, 2);
-            $table->decimal('tax_amount', 15, 2);
-            $table->decimal('total_amount', 10, 2);
-            $table->enum('status', ['pending', 'completed'])->default('pending');
+            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+            $table->date('invoice_date');
+            $table->decimal('round_off', 10, 2)->default(0);
+            $table->decimal('global_discount', 10, 2)->default(0);
+            $table->decimal('total_amount', 10, 2)->default(0);
             $table->timestamps();
             
         });

@@ -10,8 +10,13 @@ class PurchaseInvoiceItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'purchase_invoice_id', 'product_id', 'quantity', 'price'
-    ];
+        'purchase_invoice_id',
+        'product_id',
+        'quantity',
+        'price',
+        'tax_rate',
+        'discount',
+        'total_amount',    ];
 
     public function purchaseInvoice()
     {

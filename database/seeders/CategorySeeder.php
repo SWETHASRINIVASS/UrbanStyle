@@ -23,31 +23,6 @@ class CategorySeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Kurtis',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'T-Shirts',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Shirts',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Sarees',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Tops',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
                 'name' => 'Leggings',
                 'created_at' => now(),
                 'updated_at' => now(),

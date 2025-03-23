@@ -10,7 +10,13 @@ class SaleInvoice extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id', 'invoice_number', 'invoice_date', 'tax_rate', 'subtotal', 'tax_amount', 'total_amount', 'status'
+        'customer_id',
+        'invoice_number',
+        'invoice_date',
+        'round_off',
+        'global_discount',
+        'total_amount',
+        
     ];
 
     public function customer()

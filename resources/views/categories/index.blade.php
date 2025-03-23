@@ -4,7 +4,7 @@
 <div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold">Categories</h1>
-        <a href="{{ route('categories.create') }}" class="bg-gray-800 text-white px-4 py-2 rounded">Add New Category</a>
+        <a href="{{ route('categories.create') }}" class="bg-gray-800 text-white px-4 py-2 rounded">New Category</a>
     </div>
     <table class="w-full border-collapse border border-gray-400">
         <thead class="bg-gray-200">

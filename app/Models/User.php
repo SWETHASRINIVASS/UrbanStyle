@@ -18,9 +18,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'username' => 'admin123',
-        'email' => 'admin@gmail.com',
-        'password' => 'bcrypt(admin123)',
+        'name',
+        'email',
+        'password',
+        'role',
+        'status',
+        'last_login',
     ];
 
     /**

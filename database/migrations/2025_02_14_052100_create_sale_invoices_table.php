@@ -16,12 +16,11 @@ return new class extends Migration
             $table->foreignId('customer_id')->nullable()->constrained()->onDelete('set null');
             $table->string('invoice_number')->unique();
             $table->date('invoice_date');
-            $table->decimal('tax_rate', 5, 2);
-            $table->decimal('subtotal', 15, 2);
-            $table->decimal('tax_amount', 15, 2);
-            $table->decimal('total_amount', 15, 2);
-            $table->enum('status', ['pending', 'completed'])->default('pending');
+            $table->decimal('round_off', 10, 2)->default(0);
+            $table->decimal('global_discount', 10, 2)->default(0);
+            $table->decimal('total_amount', 10, 2)->default(0);
             $table->timestamps();
+            
         });
     }
 
