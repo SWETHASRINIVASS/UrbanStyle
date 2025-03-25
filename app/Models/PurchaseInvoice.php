@@ -36,6 +36,6 @@ class PurchaseInvoice extends Model
 
     public function purchaseReturns()
     {
-        return $this->hasOne(PurchaseReturn::class, 'purchase_invoice_id');
+        return $this->hasOne(PurchaseReturn::class, );
     }
 }

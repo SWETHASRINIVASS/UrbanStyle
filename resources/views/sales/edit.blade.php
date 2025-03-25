@@ -17,13 +17,13 @@
                 'tax_rate' => $item->tax_rate,
             ];
         })->toJson() }},
-        globalDiscount: {{ $saleInvoice->discount }},
+        globalDiscount: {{ $saleInvoice->global_discount }},
         get total() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2); },
         get totalTax() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.tax_rate / 100)), 0).toFixed(2); },
         get totalDiscount() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.discount / 100)), 0).toFixed(2); },
-        get unroundedTotal() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax)); },
+        get unroundedTotal() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) - parseFloat(this.globalDiscount) + parseFloat(this.totalTax)); },
         get roundOff() { return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2); },
-        get totalAmount() { return (parseFloat(this.unroundedTotal) + parseFloat(this.roundOff)).toFixed(2); }
+        get totalAmount() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) - parseFloat(this.globalDiscount) + parseFloat(this.totalTax)).toFixed(2); }
     }">
         @csrf
         @method('PUT')
@@ -124,7 +124,7 @@
                 <label for="total_amount" class="block text-gray-700">Total Amount</label>
                 <input type="number" name="total_amount" id="total_amount" class="form-control mt-1 block w-full" x-model="totalAmount" readonly>
             </div>
-        </div>
+        </div> 
 
         <!-- Submit and Cancel Buttons -->
         <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded">Update Invoice</button>

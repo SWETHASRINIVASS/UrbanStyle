@@ -10,11 +10,16 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
+        $query = Category::query();
+        if($request->has('search') && !empty($request->search)) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        $categories = $query->orderBy('created_at', 'desc')->paginate(10);
+        
         return view('categories.index', compact('categories'));
-        // return response()->json(Category::with('products')->get());
+        
     }
 
     /**

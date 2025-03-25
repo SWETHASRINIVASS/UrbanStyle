@@ -36,7 +36,7 @@
 </div>
 
 <!-- Recent Activities -->
-<div class="bg-white p-4 shadow rounded mb-6">
+{{-- <div class="bg-white p-4 shadow rounded mb-6">
     <h3 class="text-lg font-bold mb-4">Recent Activities</h3>
     <ul class="divide-y divide-gray-200">
         <li class="py-2">
@@ -52,7 +52,7 @@
             <span class="text-xs text-gray-400">1 day ago</span>
         </li>
     </ul>
-</div>
+</div> --}}
 
 <!-- Chart Section -->
 <div class="bg-white p-4 shadow rounded">

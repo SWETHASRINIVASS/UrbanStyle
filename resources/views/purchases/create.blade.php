@@ -71,7 +71,7 @@
                             <input type="number" x-model="item.discount" :name="`items[${index}][discount]`" class="w-full border p-2 rounded" step="0.01">
                         </td>
                         <td class="p-2 border">
-                            <select x-model="item.tax_rate" :name="'items[' + index + '][tax_rate]'" class="w-full border p-2 rounded">
+                            <select x-model="item.tax_rate" :name="`items[${index}][tax_rate]`" class="w-full border p-2 rounded">
                                 <option value="">Select Tax Rate</option>
                                 @foreach($taxes as $tax)
                                     <option value="{{ $tax->tax_rate }}">{{ $tax->tax_name }} ({{ $tax->tax_rate }}%)</option>

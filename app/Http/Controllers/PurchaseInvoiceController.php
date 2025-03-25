@@ -17,9 +17,16 @@ class PurchaseInvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $purchaseInvoices = PurchaseInvoice::with('supplier')->get();
+        $query = PurchaseInvoice::with('supplier', 'purchaseInvoiceItems.product');
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('invoice_number', 'like', '%' . $request->search . '%');
+        }
+
+        $purchaseInvoices = $query->orderBy('created_at', 'desc')->paginate(10);
         return view('purchases.index', compact('purchaseInvoices'));
     }
 
@@ -66,12 +73,13 @@ class PurchaseInvoiceController extends Controller
                 'invoice_date' => $validatedData['invoice_date'],
                 'round_off' => $validatedData['round_off'] ?? 0,
                 'global_discount' => $validatedData['global_discount'] ?? 0,
-                'total_amount' => 0, // Will be updated later
+                'total_amount' => 0, 
             ]);
 
             $totalAmount = 0;
 
             // Loop through items and create purchase invoice items
+            
             foreach ($validatedData['items'] as $item) {
                 $subtotal = $item['quantity'] * $item['price'];
                 $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;

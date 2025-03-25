@@ -115,7 +115,9 @@
 
         <!-- Submit and Cancel Buttons -->
         <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded">Save Invoice</button>
+        
         <a href="{{ route('sales.index') }}" class="bg-gray-800 text-white px-4 py-2 rounded">Cancel</a>
     </form>
 </div>
 @endsection
+

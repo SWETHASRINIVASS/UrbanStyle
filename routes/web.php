@@ -12,6 +12,8 @@ use App\Http\Controllers\SaleInvoiceController;
 use App\Http\Controllers\TaxController;
 use App\Http\Controllers\SalePaymentController;
 use App\Http\Controllers\PurchasePaymentController;
+use App\Http\Controllers\SaleReturnController;
+use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 
@@ -60,8 +62,14 @@ Route::post('purchases/{id}/items', [PurchaseInvoiceController::class, 'storeRet
 
 Route::resource('sale_invoices', SaleInvoiceController::class);
 Route::resource('sale_payments', SalePaymentController::class);
+Route::resource('sale_returns', SaleReturnController::class);
 Route::resource('purchase_invoices', PurchaseInvoiceController::class);
 Route::resource('purchase_payments', PurchasePaymentController::class);
+Route::resource('purchase_returns', PurchaseReturnController::class);
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/products/{id}', [ProductController::class, 'getProduct'])->name('products.get');
+
+// print invoice routes
+
+Route::get('/sales/{id}/print', [SaleInvoiceController::class, 'printInvoice'])->name('sales.print');

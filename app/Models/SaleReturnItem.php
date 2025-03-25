@@ -10,8 +10,7 @@ class SaleReturnItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sale_return_id', 'product_id', 'quantity', 'sale_price', 'tax_rate', 'tax_price',
-        'discount', 'round_off', 'total_amount', 'return_date'
+        'sale_return_id','product_id',  'quantity', 'price', 'total_amount', 'return_date'
     ];
 
     public function saleReturn()

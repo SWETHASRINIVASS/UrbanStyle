@@ -11,9 +11,15 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+        $users = $query->orderBy('created_at', 'desc')->paginate(10);
+       
         return view('users.index', compact('users'));
     }
 

@@ -10,8 +10,11 @@ class PurchaseReturn extends Model
     use HasFactory;
 
     protected $fillable = [
-        'purchase_invoice_id', 'product_id', 'quantity',
-        'return_reason', 'return_amount', 'return_date'
+        'purchase_invoice_id',
+        'supplier_id',
+        'return_reason',
+        'return_amount',
+        'return_date',
     ];
 
     public function purchaseInvoice()
@@ -22,6 +25,11 @@ class PurchaseReturn extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function purchaseReturnItems()

@@ -10,8 +10,7 @@ class PurchaseReturnItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'purchase_return_id', 'product_id', 'qty', 'purchase_price', 'discount', 'tax_rate',
-        'tax_price', 'round_off', 'total_amount', 'return_date'
+        'purchase_return_id', 'product_id', 'quantity', 'price', 'total_amount', 'return_date'
     ];
 
     public function purchaseReturn()

@@ -22,7 +22,7 @@
             @foreach($expenses as $expense)
                 <tr class="hover:bg-gray-100">
                     <td class="p-2 border">{{ $expense->id }}</td>
-                    <td class="p-2 boredr">{{ $expense->name }}</td>
+                    <td class="p-2 border">{{ $expense->name }}</td>
                     <td class="p-2 border">{{ $expense->amount }}</td>
                     <td class="p-2 border">{{ $expense->date }}</td>
                     <td class="p-2 border">{{ $expense->description }}</td>

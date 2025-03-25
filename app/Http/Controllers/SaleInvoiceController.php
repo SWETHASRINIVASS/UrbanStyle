@@ -9,6 +9,8 @@ use App\Models\SaleReturn;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Tax;
+use setasign\Fpdi\Fpdi;
+use FPDF;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -140,6 +142,7 @@ class SaleInvoiceController extends Controller
     $customers = Customer::all();
     $products = Product::all();
     $taxes = Tax::all();
+    
     return view('sales.edit', compact('saleInvoice', 'customers', 'products', 'taxes'));
 }
 
@@ -221,6 +224,91 @@ class SaleInvoiceController extends Controller
             return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }
     }
+
+    public function getProduct($id)
+    {
+        $product = Product::find($id);
+    
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'price' => $product->price,
+            ]);
+        }
+    
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found',
+        ]);
+    }
+
+
+    /**
+     * Print the invoice
+     */
+
+     public function printInvoice($id)
+     {
+         $saleInvoice = SaleInvoice::with(['customer', 'saleInvoiceItems.product'])->findOrFail($id);
+     
+         // Create a new instance of FPDF
+         $pdf = new FPDF('p', 'mm', "A4");
+         $pdf->AddPage();
+         $pdf->SetFont('Arial', 'B', 16);
+     
+         // Invoice Header
+         $pdf->Cell(0, 10, 'Sales Invoice', 0, 1, 'C');
+         $pdf->SetFont('Arial', '', 12);
+         $pdf->Ln(5);
+     
+         // Invoice Details
+         $pdf->Cell(50, 10, 'Invoice Number:', 0, 0);
+         $pdf->Cell(50, 10, $saleInvoice->invoice_number, 0, 1);
+     
+         $pdf->Cell(50, 10, 'Customer Name:', 0, 0);
+         $pdf->Cell(50, 10, $saleInvoice->customer->name ?? 'N/A', 0, 1);
+     
+         $pdf->Cell(50, 10, 'Invoice Date:', 0, 0);
+         $pdf->Cell(50, 10, $saleInvoice->invoice_date, 0, 1);
+     
+         $pdf->Ln(10);
+     
+         // Table Header
+         $pdf->SetFont('Arial', 'B', 12);
+         $pdf->Cell(50, 10, 'Product', 1, 0, 'C');
+         $pdf->Cell(20, 10, 'Qty', 1, 0, 'C');
+         $pdf->Cell(30, 10, 'Price', 1, 0, 'C');
+         $pdf->Cell(20, 10, 'Tax (%)', 1, 0, 'C'); // Added Tax Rate column
+         $pdf->Cell(30, 10, 'Discount', 1, 0, 'C');
+         $pdf->Cell(40, 10, 'Total', 1, 1, 'C');
+     
+         // Table Body
+         $pdf->SetFont('Arial', '', 12);
+         foreach ($saleInvoice->saleInvoiceItems as $item) {
+             $pdf->Cell(50, 10, $item->product->name ?? 'N/A', 1, 0);
+             $pdf->Cell(20, 10, $item->quantity, 1, 0, 'C');
+             $pdf->Cell(30, 10, number_format($item->price, 2), 1, 0, 'C');
+             $pdf->Cell(20, 10, $item->tax_rate . '%', 1, 0, 'C'); // Display Tax Rate
+             $pdf->Cell(30, 10, $item->discount . '%', 1, 0, 'C');
+             $pdf->Cell(40, 10, number_format($item->total_amount, 2), 1, 1, 'C');
+         }
+     
+         // Invoice Total
+         $pdf->Ln(10);
+         $pdf->SetFont('Arial', 'B', 12);
+         $pdf->Cell(50, 10, 'Total Amount :', 0, 0);
+         $pdf->Cell(50, 10, '₹' . number_format($saleInvoice->total_amount, 2), 0, 1);
+     
+         $pdf->Cell(50, 10, 'Round Off :', 0, 0);
+         $pdf->Cell(50, 10, '₹' . number_format($saleInvoice->round_off, 2), 0, 1);
+     
+         // Output the PDF
+         $pdfContent = $pdf->Output('S'); // Capture the PDF content as a string
+     
+         return response($pdfContent)
+             ->header('Content-Type', 'application/pdf')
+             ->header('Content-Disposition', 'inline; filename="Invoice-' . $saleInvoice->invoice_number . '.pdf"');
+     }
 
     /**
      * Remove the specified resource from storage.

@@ -37,15 +37,15 @@
 
         <!-- Payment Amount -->
         <div class="form-group mb-4">
-            <label for="amount" class="block text-gray-700">Amount</label>
+            <label for="amount" class="block text-gray-700">Paid Amount</label>
             <input type="number" name="amount" id="amount" class="form-control mt-1 block w-full" step="0.01" min="0" value="{{ $purchasePayment->amount }}" required>
         </div>
 
         <!-- Round Off -->
-        <div class="form-group mb-4">
+        {{-- <div class="form-group mb-4">
             <label for="round_off" class="block text-gray-700">Round Off</label>
             <input type="number" name="round_off" id="round_off" class="form-control mt-1 block w-full" step="0.01" value="{{ $purchasePayment->round_off }}">
-        </div>
+        </div> --}}
 
         <!-- Total Amount -->
         <div class="form-group mb-4">

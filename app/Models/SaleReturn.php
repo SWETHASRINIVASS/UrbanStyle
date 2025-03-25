@@ -10,13 +10,21 @@ class SaleReturn extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sale_invoice_id', 'product_id', 'quantity',
-        'return_reason', 'refund_amount', 'refund_date'
+        'sale_invoice_id',
+        'customer_id',
+        'return_reason',
+        'refund_amount',
+        'refund_date',
     ];
 
     public function saleInvoice()
     {
         return $this->belongsTo(SaleInvoice::class,'sale_invoice_id');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function product()

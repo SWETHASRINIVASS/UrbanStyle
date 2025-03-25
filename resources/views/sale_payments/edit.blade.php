@@ -44,8 +44,20 @@
 
         <!-- Payment Amount -->
         <div class="form-group mb-4">
-            <label for="amount" class="block text-gray-700 font-medium">Amount</label>
+            <label for="amount" class="block text-gray-700 font-medium">Paid Amount</label>
             <input type="number" name="amount" id="amount" class="form-control mt-1 block w-full" step="0.01" min="0" value="{{ $salePayment->amount }}" required>
+        </div>
+
+        <!-- Total Amount -->
+        <div class="form-group mb-4">
+            <label for="total_amount" class="block text-gray-700">Total Amount</label>
+            <input type="number" name="total_amount" id="total_amount" class="form-control mt-1 block w-full" step="0.01" min="0" value="{{ $salePayment->total_amount }}" required>
+        </div>
+
+        <!-- Balance Due -->
+        <div class="form-group mb-4">
+            <label for="balance_due" class="block text-gray-700">Balance Due</label>
+            <input type="number" name="balance_due" id="balance_due" class="form-control mt-1 block w-full" step="0.01" min="0" value="{{ $salePayment->balance_due }}">
         </div>
 
         <!-- Payment Method -->

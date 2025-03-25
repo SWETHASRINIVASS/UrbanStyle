@@ -29,9 +29,9 @@
                         :aria-expanded="open"
                     >
                         Sales
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        {{-- <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                        </svg> --}}
                     </button>
                     <ul 
                         x-show="open" 
@@ -41,16 +41,21 @@
                         x-transition:leave="transition ease-in duration-150" 
                         x-transition:leave-start="opacity-100 transform scale-100" 
                         x-transition:leave-end="opacity-0 transform scale-95" 
-                        class="absolute bg-gray-700 text-white w-48 mt-2 rounded shadow-lg z-10"
+                        class="absolute bg-white text-gray-900 w-48 mt-2 rounded shadow-lg z-10"
                     >
                         <li>
                             <a href="{{ route('sale_invoices.index') }}" class="block px-4 py-2 hover:bg-gray-600 rounded-t">
-                                Invoices
+                                Sale Invoices
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('sale_payments.index') }}" class="block px-4 py-2 hover:bg-gray-600 rounded-b">
-                                Payments
+                                Sale Payments
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('sale_returns.index') }}" class="block px-4 py-2 hover:bg-gray-600 rounded-b">
+                                Sale Returns
                             </a>
                         </li>
                     </ul>
@@ -66,9 +71,9 @@
                         :aria-expanded="open"
                     >
                         Purchases
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        {{-- <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                        </svg> --}}
                     </button>
                     <ul 
                         x-show="open" 
@@ -78,16 +83,21 @@
                         x-transition:leave="transition ease-in duration-150" 
                         x-transition:leave-start="opacity-100 transform scale-100" 
                         x-transition:leave-end="opacity-0 transform scale-95" 
-                        class="absolute bg-gray-700 text-white w-48 mt-2 rounded shadow-lg z-10"
+                        class="absolute bg-white text-gray-900 w-48 mt-2 rounded shadow-lg z-10"
                     >
                         <li>
                             <a href="{{ route('purchase_invoices.index') }}" class="block px-4 py-2 hover:bg-gray-600 rounded-t">
-                                Invoices
+                                Purchase Invoices
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('purchase_payments.index') }}" class="block px-4 py-2 hover:bg-gray-600 rounded-b">
-                                Payments
+                                Purchase Payments
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('purchase_returns.index') }}" class="block px-4 py-2 hover:bg-gray-600 rounded-b">
+                                Purchase Returns
                             </a>
                         </li>
                     </ul>

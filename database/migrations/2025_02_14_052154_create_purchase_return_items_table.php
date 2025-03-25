@@ -16,11 +16,8 @@ return new class extends Migration
             $table->foreignId('purchase_return_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
-            $table->decimal('purchase_price', 10, 2);
-            $table->decimal('discount', 10, 2)->nullable();
-            $table->decimal('tax_rate', 5, 2)->nullable();
-            $table->decimal('tax_price', 10, 2)->nullable();
-            $table->decimal('round_off', 10, 2)->nullable();
+            $table->decimal('price', 10, 2);
+            
             $table->decimal('total_amount', 10, 2);
             $table->date('return_date');
             $table->timestamps();

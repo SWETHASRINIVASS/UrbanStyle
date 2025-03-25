@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('sale_returns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_invoice_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity');
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            
             $table->string('return_reason');
             $table->decimal('refund_amount', 10, 2);
             $table->date('refund_date');

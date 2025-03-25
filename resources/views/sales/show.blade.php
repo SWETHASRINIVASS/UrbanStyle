@@ -70,6 +70,7 @@
     <!-- Action Buttons -->
     <div class="mt-6">
         <a href="{{ route('sales.edit', $saleInvoice->id) }}" class="bg-gray-800 text-white px-4 py-2 rounded">Edit</a>
+        
         <a href="{{ route('sales.index') }}" class="bg-gray-800 text-white px-4 py-2 rounded">Back</a>
     </div>
 </div>

@@ -13,9 +13,14 @@ class SupplierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::with(['purchaseInvoices.purchasePayments'])->get();
+        $query = Supplier::query();
+        if($request->has('search') && !empty($request->search)) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        $suppliers = $query->orderBy('created_at', 'desc')->paginate(10);
+        
         return view('suppliers.index', compact('suppliers'));
     }
 
@@ -79,27 +84,25 @@ class SupplierController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $supplier = Supplier::find($id);
-        if (!$supplier) {
-            return redirect()->route('suppliers.index')->with('error', 'Supplier not found');
-        }
+{
+    $supplier = Supplier::findOrFail($id);
 
-        $validatedData = $request->validate([
-           'name' => 'required|string|max:255|unique:suppliers',
-            'phone' => 'required|string|max:20|unique:suppliers',
-            'email' => 'nullable|email|unique:suppliers',
-            'address_line_1' => 'nullable|string',
-            'address_line_2' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'country' => 'nullable|string',
-            'pin_code' => 'nullable|string'
-        ]);
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255|unique:suppliers,name,' . $id,
+        'phone' => 'required|string|max:20|unique:suppliers,phone,' . $id,
+        'email' => 'nullable|email|unique:suppliers,email,' . $id,
+        'address_line_1' => 'nullable|string',
+        'address_line_2' => 'nullable|string',
+        'city' => 'nullable|string',
+        'state' => 'nullable|string',
+        'country' => 'nullable|string',
+        'pin_code' => 'nullable|string',
+    ]);
 
-        $supplier->update($validatedData);
-        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully');
-    }
+    $supplier->update($validatedData);
+
+    return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully');
+}
 
     /**
      * Remove the specified resource from storage.

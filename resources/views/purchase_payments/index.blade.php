@@ -17,7 +17,7 @@
                 type="text" 
                 name="search" 
                 value="{{ request('search') }}" 
-                placeholder="Invoice Number" 
+                placeholder="Search by Invoice No" 
                 class="form-control border p-2 rounded w-1/3"
             >
             <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded ml-2">Search</button>

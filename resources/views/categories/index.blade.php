@@ -6,6 +6,20 @@
         <h1 class="text-2xl font-bold">Categories</h1>
         <a href="{{ route('categories.create') }}" class="bg-gray-800 text-white px-4 py-2 rounded">New Category</a>
     </div>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{{ route('categories.index') }}" class="mb-4">
+        <div class="flex items-center">
+            <input 
+                type="text" 
+                name="search" 
+                value="{{ request('search') }}" 
+                placeholder="Search by Name" 
+                class="form-control border p-2 rounded w-1/3"
+            >
+            <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded ml-2">Search</button>
+        </div>
+    </form>
     <table class="w-full border-collapse border border-gray-400">
         <thead class="bg-gray-200">
             <tr>

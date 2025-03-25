@@ -42,7 +42,7 @@
 
             <!-- Payment Amount -->
             <div class="form-group mb-4">
-                <label for="amount" class="block text-gray-700 font-medium">Amount</label>
+                <label for="amount" class="block text-gray-700 font-medium"> Paid Amount</label>
                 <input type="number" name="amount" id="amount" class="form-control mt-1 block w-full" step="0.01" min="0" required>
             </div>
 
