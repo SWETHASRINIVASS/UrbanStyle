@@ -9,8 +9,11 @@ use App\Models\PurchaseReturn;
 use App\Models\Supplier;
 use App\Models\Product;
 use App\Models\Tax;
+use App\Services\InvoicePdf;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class PurchaseInvoiceController extends Controller
 {
@@ -19,7 +22,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PurchaseInvoice::with('supplier', 'purchaseInvoiceItems.product');
+        $query = PurchaseInvoice::with('supplier', 'purchaseInvoiceItems');
 
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
@@ -27,6 +30,7 @@ class PurchaseInvoiceController extends Controller
         }
 
         $purchaseInvoices = $query->orderBy('created_at', 'desc')->paginate(10);
+        
         return view('purchases.index', compact('purchaseInvoices'));
     }
 
@@ -46,20 +50,29 @@ class PurchaseInvoiceController extends Controller
      */
     public function store(Request $request)
     {
+        try {
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'invoice_date' => 'required|date',
             'round_off' => 'nullable|numeric',
-            'global_discount' => 'nullable|numeric|min:0',
+            'global_discount' => 'nullable|numeric|min:0',            
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
-            'items.*.tax_rate' => 'required|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.tax_rate' => 'nullable|numeric|min:0',
+            
         ]);
 
-        try {
+        // Calculate total amount dynamically
+    //     $totalAmount = collect($request->items)->sum(function ($item) {
+    //     return ($item['quantity'] * $item['price']) 
+    //          - (($item['quantity'] * $item['price']) * ($item['discount'] / 100)) 
+    //          + (($item['quantity'] * $item['price']) * ($item['tax_rate'] / 100));
+    // });
+
+        
             DB::beginTransaction();
 
             // Generate a unique invoice number
@@ -91,7 +104,7 @@ class PurchaseInvoiceController extends Controller
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
-                    'tax_rate' => $item['tax_rate'],
+                    'tax_rate' => $item['tax_rate'] ?? 0,
                     'discount' => $item['discount'] ?? 0,
                     'total_amount' => $totalPrice,
                 ]);
@@ -148,38 +161,24 @@ class PurchaseInvoiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validatedData = $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_date' => 'required|date',
-            'round_off' => 'nullable|numeric',
-            'global_discount' => 'nullable|numeric|min:0',
-            'items' => 'required|array',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|numeric|min:1',
-            'items.*.price' => 'required|numeric|min:0',
-            'items.*.tax_rate' => 'required|numeric|min:0',
-            'items.*.discount' => 'nullable|numeric|min:0',
-        ]);
-
         try {
+                
             DB::beginTransaction();
 
             $purchaseInvoice = PurchaseInvoice::findOrFail($id);
 
             // Update the purchase invoice
             $purchaseInvoice->update([
-                'supplier_id' => $validatedData['supplier_id'],
-                'invoice_date' => $validatedData['invoice_date'],
-                'round_off' => $validatedData['round_off'] ?? 0,
-                'global_discount' => $validatedData['global_discount'] ?? 0,
+               'customer_id' => $request->customer_id,
+                'invoice_date' => $request->invoice_date,
+                'round_off' => $request->round_off ?? 0,
+                'global_discount' => $request->global_discount ?? 0,
             ]);
 
             $totalAmount = 0;
-
-            // Delete existing items and recreate them
             $purchaseInvoice->purchaseInvoiceItems()->delete();
 
-            foreach ($validatedData['items'] as $item) {
+            foreach ($request->items as $item) {
                 $subtotal = $item['quantity'] * $item['price'];
                 $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
                 $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
@@ -198,18 +197,12 @@ class PurchaseInvoiceController extends Controller
                 $totalAmount += $totalPrice;
             }
 
-            // Apply global discount
-            $globalDiscountAmount = ($totalAmount * ($validatedData['global_discount'] ?? 0)) / 100;
-            $finalAmount = $totalAmount - $globalDiscountAmount;
-
-            // Apply round off
-            $roundedFinalAmount = round($finalAmount);
-            $roundOff = $roundedFinalAmount - $finalAmount;
+            
 
             // Update the total amount in the invoice
             $purchaseInvoice->update([
-                'total_amount' => $roundedFinalAmount,
-                'round_off' => $roundOff,
+                'total_amount' => round($totalAmount),
+                
             ]);
 
             DB::commit();
@@ -236,6 +229,23 @@ class PurchaseInvoiceController extends Controller
             'success' => false,
             'message' => 'Product not found',
         ]);
+    }
+
+    /**
+     * Generate PDF for the specified resource.
+     */
+    public function generatePdf($id)
+    {
+    $invoice = PurchaseInvoice::with('purchaseInvoiceitems.product', 'supplier')->findOrFail($id);
+
+    $invoicesPath = storage_path('app/invoices');
+    if (!File::exists($invoicesPath)) {
+        File::makeDirectory($invoicesPath, 0755, true);
+    }
+    $pdf = new InvoicePdf($invoice, 'purchase');
+    $pdfPath = $pdf->generatePdf();
+
+    return Response::download($pdfPath, "purchase_invoice_{$invoice->invoice_number}.pdf");
     }
 
 

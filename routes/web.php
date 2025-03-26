@@ -69,7 +69,9 @@ Route::resource('purchase_returns', PurchaseReturnController::class);
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/products/{id}', [ProductController::class, 'getProduct'])->name('products.get');
+Route::get('/products-price/{id}', [ProductController::class, 'getProductPrice']);
 
 // print invoice routes
 
-Route::get('/sales/{id}/print', [SaleInvoiceController::class, 'printInvoice'])->name('sales.print');
+Route::get('/sales/{id}/print', [SaleInvoiceController::class, 'generatePdf'])->name('sales.pdf');
+Route::get('/purchases/{id}/print', [PurchaseInvoiceController::class, 'generatePdf'])->name('purchases.pdf');

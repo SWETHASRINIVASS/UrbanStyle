@@ -20,7 +20,7 @@ class PurchaseInvoiceItem extends Model
 
     public function purchaseInvoice()
     {
-        return $this->belongsTo(PurchaseInvoice::class);
+        return $this->belongsTo(PurchaseInvoice::class, 'purchase_invoice_id');
     }
 
     public function product()

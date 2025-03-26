@@ -7,15 +7,27 @@
     <h1 class="text-2xl font-bold mb-4">New Purchase Invoice</h1>
 
     <form action="{{ route('purchases.store') }}" method="POST" x-data="{
-        items: [],
-        globalDiscount: 0,
-        get total() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2); },
-        get totalTax() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.tax_rate / 100)), 0).toFixed(2); },
-        get totalDiscount() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.discount / 100)), 0).toFixed(2); },
-        get unroundedTotal() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) - parseFloat(this.globalDiscount) + parseFloat(this.totalTax)); },
-        get roundOff() { return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2); },
-        get totalAmount() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) - parseFloat(this.globalDiscount) + parseFloat(this.totalTax)).toFixed(2); }
-    }">
+            items: [],
+    globalDiscount: 0,
+    get total() {
+        return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
+    },
+    get totalTax() {
+        return this.items.reduce((sum, item) => sum + ((item.quantity * item.price - (item.quantity * item.price * (item.discount / 100))) * (item.tax_rate / 100)), 0).toFixed(2);
+    },
+    get totalDiscount() {
+        return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.discount / 100)), 0).toFixed(2);
+    },
+    get unroundedTotal() {
+        return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax) - parseFloat(this.globalDiscount));
+    },
+    get roundOff() {
+        return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2);
+    },
+    get totalAmount() {
+        return (Math.round(this.unroundedTotal)).toFixed(2);
+    }
+}">
         @csrf
 
         <!-- Supplier and Invoice Details -->
@@ -104,7 +116,7 @@
             </div>
             <div class="form-group mb-4">
                 <label for="round_off" class="block text-gray-700">Round Off</label>
-                <input type="number" name="round_off" id="round_off" class="form-control mt-1 block w-full" x-model="roundOff" readonly>
+                <input type="number" name="round_off" id="round_off" class="form-control mt-1 block w-full" x-model="roundOff" step="0.01" readonly>
             </div>
             <div class="form-group mb-4">
                 <label for="total_amount" class="block text-gray-700">Total Amount</label>

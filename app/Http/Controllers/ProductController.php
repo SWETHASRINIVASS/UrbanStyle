@@ -95,6 +95,20 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
 
+    public function getProductPrice($id)
+    {
+        $product = Product::find($id);
+
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'price' => $product->price
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

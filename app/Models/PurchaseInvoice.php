@@ -26,8 +26,21 @@ class PurchaseInvoice extends Model
 
     public function purchaseInvoiceItems()
     {
-        return $this->hasMany(PurchaseInvoiceItem::class);
+        return $this->hasMany(PurchaseInvoiceItem::class, 'purchase_invoice_id');
     }
+
+    public function getTotalAmountAttribute()
+{
+    if (!$this->relationLoaded('purchaseInvoiceItems') || $this->purchaseInvoiceItems === null) {
+        return $this->attributes['total_amount'] ?? 0;
+    }
+
+    return $this->purchaseInvoiceItems->isNotEmpty() ? $this->purchaseInvoiceItems->sum(function ($item) {
+        return ($item->quantity * $item->price) 
+             - (($item->quantity * $item->price) * ($item->discount / 100)) 
+             + (($item->quantity * $item->price) * ($item->tax_rate / 100));
+    }) : $this->attributes['total_amount'] ?? 0;
+}
 
     public function purchasePayments()
     {
@@ -38,4 +51,5 @@ class PurchaseInvoice extends Model
     {
         return $this->hasOne(PurchaseReturn::class, );
     }
+
 }

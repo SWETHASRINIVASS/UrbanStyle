@@ -24,10 +24,23 @@ class SaleInvoice extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function SaleInvoiceItems()
+    public function saleInvoiceItems()
     {
-        return $this->hasMany(SaleInvoiceItem::class);
+        return $this->hasMany(SaleInvoiceItem::class,'sale_invoice_id');
     }
+
+    public function getTotalAmountAttribute()
+{
+    if (!$this->relationLoaded('saleInvoiceItems') || $this->saleInvoiceItems === null) {
+        return $this->attributes['total_amount'] ?? 0;
+    }
+
+    return $this->saleInvoiceItems->isNotEmpty() ? $this->saleInvoiceItems->sum(function ($item) {
+        return ($item->quantity * $item->price) 
+             - (($item->quantity * $item->price) * ($item->discount / 100)) 
+             + (($item->quantity * $item->price) * ($item->tax_rate / 100));
+    }) : $this->attributes['total_amount'] ?? 0;
+}
 
     public function SalePayments()
     {
