@@ -64,14 +64,6 @@ class PurchaseInvoiceController extends Controller
             'items.*.tax_rate' => 'nullable|numeric|min:0',
             
         ]);
-
-        // Calculate total amount dynamically
-    //     $totalAmount = collect($request->items)->sum(function ($item) {
-    //     return ($item['quantity'] * $item['price']) 
-    //          - (($item['quantity'] * $item['price']) * ($item['discount'] / 100)) 
-    //          + (($item['quantity'] * $item['price']) * ($item['tax_rate'] / 100));
-    // });
-
         
             DB::beginTransaction();
 
@@ -94,10 +86,10 @@ class PurchaseInvoiceController extends Controller
             // Loop through items and create purchase invoice items
             
             foreach ($validatedData['items'] as $item) {
-                $subtotal = $item['quantity'] * $item['price'];
-                $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
-                $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
-                $totalPrice = $subtotal - $discountAmount + $taxAmount;
+                $total = $item['quantity'] * $item['price'];
+                $discountAmount = ($total * ($item['discount'] ?? 0)) / 100;
+                $taxAmount = (($total - $discountAmount) * $item['tax_rate']) / 100;
+                $totalPrice = $total - $discountAmount + $taxAmount;
 
                 PurchaseInvoiceItem::create([
                     'purchase_invoice_id' => $purchaseInvoice->id,
@@ -179,10 +171,10 @@ class PurchaseInvoiceController extends Controller
             $purchaseInvoice->purchaseInvoiceItems()->delete();
 
             foreach ($request->items as $item) {
-                $subtotal = $item['quantity'] * $item['price'];
-                $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
-                $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
-                $totalPrice = $subtotal - $discountAmount + $taxAmount;
+                $total = $item['quantity'] * $item['price'];
+                $discountAmount = ($total * ($item['discount'] ?? 0)) / 100;
+                $taxAmount = (($total - $discountAmount) * $item['tax_rate']) / 100;
+                $totalPrice = $total - $discountAmount + $taxAmount;
 
                 PurchaseInvoiceItem::create([
                     'purchase_invoice_id' => $purchaseInvoice->id,

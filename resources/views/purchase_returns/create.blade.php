@@ -23,8 +23,8 @@
         <!-- Supplier and Invoice Details -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
-                <label for="purchase_invoice_id" class="block text-gray-700">Purchase Invoice</label>
-                <select name="purchase_invoice_id" id="purchase_invoice_id" class="form-control mt-1 block w-full" required>
+                <label for="purchase_invoice_id" class="block text-gray-700">Select Purchase Invoice</label>
+                <select id="purchase_invoice_id" name="purchase_invoice_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Invoice</option>
                     @foreach($purchaseInvoices as $invoice)
                         <option value="{{ $invoice->id }}">{{ $invoice->invoice_number }} - {{ $invoice->supplier->name ?? 'N/A'}}</option>
@@ -33,7 +33,7 @@
             </div>
             <div class="form-group mb-4">
                 <label for="supplier_id" class="block text-gray-700">Supplier</label>
-                <select name="supplier_id" id="supplier_id" class="form-control mt-1 block w-full" required>
+                <select name="supplier_id" id="supplier_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Supplier</option>
                     @foreach($suppliers as $supplier)
                         <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
@@ -120,4 +120,3 @@
 
 
 
-{{-- supplier , purchase invoice , date , total amount ,  --}}

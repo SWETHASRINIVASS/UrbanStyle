@@ -44,12 +44,12 @@
                     <td class="p-2 border">{{ $user->role }}</td>
                     <td class="p-2 border">{{ $user->status ? 'Active' : 'Inactive' }}</td>
                     <td class="p-2 border">
-                        <a href="{{ route('users.show', $user->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('users.edit', $user->id) }}" class="text-green-500 ml-2">Edit</a>
+                        <a href="{{ route('users.show', $user->id) }}" class="text-blue-500">👁️</a>
+                        <a href="{{ route('users.edit', $user->id) }}" class="text-green-500 ml-2">📝</a>
                         <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this user?')">🗑️</button>
                         </form>
                     </td>
                 </tr>

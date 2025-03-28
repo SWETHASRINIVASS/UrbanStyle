@@ -50,17 +50,17 @@
                     <td class="p-2 border">₹{{ number_format($saleReturn->refund_amount, 2) }}</td>
                     <td class="p-2 border">{{ $saleReturn->refund_date }}</td>
                     <td class="p-2 border">
-                        <a href="{{ route('sale_returns.show', $saleReturn->id) }}" class="text-blue-500 hover:underline">
-                            View
+                        <a href="{{ route('sale_returns.show', $saleReturn->id) }}" >
+                            👁️
                         </a>
-                        <a href="{{ route('sale_returns.edit', $saleReturn->id) }}" class="text-green-500 hover:underline ml-2">
-                            Edit
+                        <a href="{{ route('sale_returns.edit', $saleReturn->id) }}" >
+                            📝
                         </a>
                         <form action="{{ route('sale_returns.destroy', $saleReturn->id) }}" method="POST" class="inline-block ml-2">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Are you sure you want to delete this sale return?')">
-                                Delete
+                            <button type="submit"  onclick="return confirm('Are you sure you want to delete this sale return?')">
+                                🗑️
                             </button>
                         </form>
                     </td>

@@ -34,16 +34,20 @@
                     <td class="p-2 border">{{ $category->id }}</td>
                     <td class="p-2 border">{{ $category->name }}</td>
                     <td class="p-2 border">
-                        <a href="{{ route('categories.edit', $category->id) }}" class="text-green-500">Edit</a>
+                        <a href="{{ route('categories.edit', $category->id) }}" class="text-green-500">📝</a>
                         <form action="{{ route('categories.destroy', $category->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500">Delete</button>
+                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this category?')">🗑️</button>
                         </form>
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+    <div class="mt-4">
+        {{ $categories->links() }}
+    </div>
 </div>
+
 @endsection

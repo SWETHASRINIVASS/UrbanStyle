@@ -98,22 +98,12 @@ class PurchaseReturnController extends Controller
      */
     public function edit($id)
     {
-        $purchaseReturn = PurchaseReturn::with('purchaseReturnItems.product')->findOrFail($id);
+        $purchaseReturn = PurchaseReturn::with('purchaseReturnItems')->findOrFail($id);
         $purchaseInvoices = PurchaseInvoice::all();
         $suppliers = Supplier::all();
-        $products = Product::all();
+        $products = Product::all();        
 
-        $items = $purchaseReturn->purchaseReturnItems->map(function ($item) {
-            return [
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'total_amount' => $item->total_amount,
-            ];
-        });
-        
-
-        return view('purchase_returns.edit', compact('purchaseReturn', 'purchaseInvoices', 'suppliers', 'products','items'));
+        return view('purchase_returns.edit', compact('purchaseReturn', 'purchaseInvoices', 'suppliers', 'products'));
     }
 
     /**
@@ -154,7 +144,7 @@ class PurchaseReturnController extends Controller
                 'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
-        'total_amount' => $item['total_amount'] ?? ($item['quantity'] * $item['price']),
+                'total_amount' => $item['quantity'] * $item['price'],
                 'return_date' => $request->return_date,
             ]);
         }

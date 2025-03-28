@@ -19,7 +19,7 @@ class SupplierController extends Controller
         if($request->has('search') && !empty($request->search)) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
-        $suppliers = $query->orderBy('created_at', 'desc')->paginate(10);
+        $suppliers = $query->orderBy('created_at', 'desc')->paginate(5);
         
         return view('suppliers.index', compact('suppliers'));
     }

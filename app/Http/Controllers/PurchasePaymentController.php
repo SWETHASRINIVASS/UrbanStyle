@@ -34,7 +34,7 @@ class PurchasePaymentController extends Controller
     public function create()
     {
         
-        $purchaseInvoices = PurchaseInvoice::all(); // Fetch all purchase invoices
+        $purchaseInvoices = PurchaseInvoice::with('supplier')->get(); // Fetch all purchase invoices
         $suppliers = Supplier::all();
         return view('purchase_payments.create', compact('purchaseInvoices', 'suppliers'));
     }

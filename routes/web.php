@@ -15,6 +15,7 @@ use App\Http\Controllers\PurchasePaymentController;
 use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
@@ -46,6 +47,7 @@ Route::resource('taxes', TaxController::class);
 
 Route::resource('users', UserController::class);
 Route::resource('purchases', PurchaseInvoiceController::class);
+Route::resource('reports', ReportController::class);
 
 Route::put('/sales/{sale}', [SaleInvoiceController::class, 'update'])->name('sales.update');
 

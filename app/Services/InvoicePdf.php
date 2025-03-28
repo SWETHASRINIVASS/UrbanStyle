@@ -88,7 +88,7 @@ class InvoicePdf extends \FPDF
         // Total Amount
         $this->SetFont('Arial', 'B', 12);
         $this->Cell(130, 10, 'Total Amount', 1, 0, 'C');
-        $this->Cell(60, 10, number_format($this->invoice->total_amount, 2), 1, 1, 'C');
+        $this->Cell(60, 10, number_format($this->invoice->total_amount, 2), 1, 1, 'R');
 
         // Save PDF to file
         $pdfPath = storage_path("app/invoices/{$this->type}_invoice_{$this->invoice->invoice_number}.pdf");

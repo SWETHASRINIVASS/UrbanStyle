@@ -12,7 +12,7 @@
 
                 <div class="form-group mb-4">
                     <label for="category_id" class="block text-gray-700">Category</label>
-                    <select name="category_id" id="category_id" class="form-control mt-1 block w-full" required>
+                    <select name="category_id" id="category_id" class="tom-select mt-1 block w-full" required>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                         @endforeach
@@ -26,7 +26,7 @@
 
                 <div class="form-group mb-4">
                     <label for="supplier_id" class="block text-gray-700">Supplier</label>
-                    <select name="supplier_id" id="supplier_id" class="form-control mt-1 block w-full" required>
+                    <select name="supplier_id" id="supplier_id" class="tom-select mt-1 block w-full" required>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                         @endforeach

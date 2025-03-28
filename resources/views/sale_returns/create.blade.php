@@ -23,8 +23,8 @@
         <!-- Customer and Invoice Details -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
-                <label for="sale_invoice_id" class="block text-gray-700">Sale Invoice</label>
-                <select name="sale_invoice_id" id="sale_invoice_id" class="form-control mt-1 block w-full" required>
+                <label for="sale_invoice_id" class="block text-gray-700"> Select Sale Invoice</label>
+                <select id="sale_invoice_id" name="sale_invoice_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Invoice</option>
                     @foreach($saleInvoices as $invoice)
                         <option value="{{ $invoice->id }}">{{ $invoice->invoice_number }} - {{ $invoice->customer->name ?? 'N/A' }}</option>
@@ -32,8 +32,8 @@
                 </select>
             </div>
             <div class="form-group mb-4">
-                <label for="customer_id" class="block text-gray-700">Customer</label>
-                <select name="customer_id" id="customer_id" class="form-control mt-1 block w-full" required>
+                <label for="customer_id" class="block  text-gray-700">Select Customer</label>
+                <select id="customer_id" name="customer_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Customer</option>
                     @foreach($customers as $customer)
                         <option value="{{ $customer->id }}">{{ $customer->name }}</option>
@@ -69,14 +69,16 @@
             <tbody>
                 <template x-for="(item, index) in items" :key="index">
                     <tr>
-                        <td class="p-2 border">
-                            <select x-model="item.product_id" :name="`items[${index}][product_id]`" class="form-control w-full" required>
-                                <option value="">Select Product</option>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
-                                @endforeach
-                            </select>
-                        </td>
+                        <div>
+                            <td class="p-2 border">
+                                <select name="items[0][product_id]" class="product-select w-full border rounded-lg">
+                                    <option value="">Select Product</option>
+                                    @foreach($products as $product)
+                                        <option value="{{ $product->id }}">{{ $product->name }} (Stock: {{ $product->current_stock }})</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                    </div>
                         <td class="p-2 border">
                             <input type="number" x-model="item.quantity" :name="`items[${index}][quantity]`" class="form-control w-full" min="1" required>
                         </td>

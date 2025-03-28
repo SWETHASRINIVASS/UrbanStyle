@@ -7,17 +7,25 @@
 <div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <h1 class="text-2xl font-bold mb-4">Edit Purchase Return</h1>
 
-    <form action="{{ route('purchase_returns.update', $purchaseReturn->id) }}" method="POST" x-data="{
-        items: [],
-        calculateTotalAmount(item) {
+    <form action="{{ route('purchase_returns.update', $purchaseReturn->id) }}" method="POST" 
+        x-data="{
+            items: {{ json_encode($purchaseReturn->purchaseReturnitems->map(function($item) {
+                return [
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    
+                ];
+            })) }},
+            calculateTotalAmount(item) {
             const price = parseFloat(item.price || 0);
             const quantity = parseFloat(item.quantity || 0);
-            return (price * quantity).toFixed(2);
-        },
-        get totalAmount() {
-            return this.items.reduce((sum, item) => sum + parseFloat(this.calculateTotalAmount(item) || 0), 0).toFixed(2);
-        }
-    }">
+            return (price * quantity).toFixed(2);            },
+            get totalAmount() {
+                return this.items.reduce((sum, item) => sum + parseFloat(this.calculateTotalAmount(item) || 0), 0).toFixed(2);
+            }
+        }"
+    >
         @csrf
         @method('PUT')
 
@@ -25,7 +33,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
                 <label for="purchase_invoice_id" class="block text-gray-700">Purchase Invoice</label>
-                <select name="purchase_invoice_id" id="purchase_invoice_id" class="form-control mt-1 block w-full" required>
+                <select name="purchase_invoice_id" id="purchase_invoice_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Invoice</option>
                     @foreach($purchaseInvoices as $invoice)
                         <option value="{{ $invoice->id }}" {{ $purchaseReturn->purchase_invoice_id == $invoice->id ? 'selected' : '' }}>
@@ -36,7 +44,7 @@
             </div>
             <div class="form-group mb-4">
                 <label for="supplier_id" class="block text-gray-700">Supplier</label>
-                <select name="supplier_id" id="supplier_id" class="form-control mt-1 block w-full" required>
+                <select name="supplier_id" id="supplier_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Supplier</option>
                     @foreach($suppliers as $supplier)
                         <option value="{{ $supplier->id }}" {{ $purchaseReturn->supplier_id == $supplier->id ? 'selected' : '' }}>

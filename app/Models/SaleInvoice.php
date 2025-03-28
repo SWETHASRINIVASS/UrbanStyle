@@ -35,11 +35,15 @@ class SaleInvoice extends Model
         return $this->attributes['total_amount'] ?? 0;
     }
 
-    return $this->saleInvoiceItems->isNotEmpty() ? $this->saleInvoiceItems->sum(function ($item) {
+    $total = $this->saleInvoiceItems->isNotEmpty() ? $this->saleInvoiceItems->sum(function ($item) {
         return ($item->quantity * $item->price) 
              - (($item->quantity * $item->price) * ($item->discount / 100)) 
              + (($item->quantity * $item->price) * ($item->tax_rate / 100));
     }) : $this->attributes['total_amount'] ?? 0;
+
+    $total -= $this->global_discount ?? 0;
+
+    return $total;
 }
 
     public function SalePayments()

@@ -7,34 +7,37 @@
     <h1 class="text-2xl font-bold mb-4">New Purchase Invoice</h1>
 
     <form action="{{ route('purchases.store') }}" method="POST" x-data="{
-            items: [],
-    globalDiscount: 0,
-    get total() {
-        return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
-    },
-    get totalTax() {
-        return this.items.reduce((sum, item) => sum + ((item.quantity * item.price - (item.quantity * item.price * (item.discount / 100))) * (item.tax_rate / 100)), 0).toFixed(2);
-    },
-    get totalDiscount() {
-        return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.discount / 100)), 0).toFixed(2);
-    },
-    get unroundedTotal() {
-        return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax) - parseFloat(this.globalDiscount));
-    },
-    get roundOff() {
-        return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2);
-    },
-    get totalAmount() {
-        return (Math.round(this.unroundedTotal)).toFixed(2);
-    }
-}">
+        items: [],
+        globalDiscount: 0,
+        get total() {
+            return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
+        },
+        get totalDiscount() {
+            return this.items.reduce((sum, item) => sum + ((item.quantity * item.price) * (item.discount / 100)), 0).toFixed(2);
+        },
+        get totalTax() {
+            return this.items.reduce((sum, item) => {
+                let discountedPrice = (item.quantity * item.price) - ((item.quantity * item.price) * (item.discount / 100));
+                return sum + (discountedPrice * (item.tax_rate / 100));
+            }, 0).toFixed(2);
+        },
+        get unroundedTotal() {
+            return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax) - parseFloat(this.globalDiscount)).toFixed(2);
+        },
+        get roundOff() {
+            return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2);
+        },
+        get totalAmount() {
+            return Math.round(this.unroundedTotal).toFixed(2);
+        }
+    }">
         @csrf
 
         <!-- Supplier and Invoice Details -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
                 <label for="supplier_id" class="block text-gray-700">Supplier</label>
-                <select name="supplier_id" id="supplier_id" class="form-control mt-1 block w-full" required>
+                <select name="supplier_id" id="supplier_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Supplier</option>
                     @foreach($suppliers as $supplier)
                         <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>

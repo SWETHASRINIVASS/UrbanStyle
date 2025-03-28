@@ -48,12 +48,12 @@
                     <td class="p-2 border">{{ $payment->date }}</td>
                     <td class="p-2 border">{{ $payment->status }}</td>
                     <td class="p-2 border">
-                        <a href="{{ route('sale_payments.show', $payment->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('sale_payments.edit', $payment->id) }}" class="text-green-500 ml-2">Edit</a>
+                        <a href="{{ route('sale_payments.show', $payment->id) }}" class="text-blue-500">👁️</a>
+                        <a href="{{ route('sale_payments.edit', $payment->id) }}" class="text-green-500 ml-2">📝</a>
                         <form action="{{ route('sale_payments.destroy', $payment->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this payment?')">Delete</button>
+                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this payment?')">🗑️</button>
                         </form>
                     </td>
                 </tr>

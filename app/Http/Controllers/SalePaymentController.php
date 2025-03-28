@@ -33,8 +33,9 @@ class SalePaymentController extends Controller
      */
     public function create()
     {
-        $saleInvoices = SaleInvoice::all(); // Fetch all sale invoices
+        $saleInvoices = SaleInvoice::with('customer')->get(); // Fetch all sale invoices
         $customers = Customer::all();
+        
         return view('sale_payments.create', compact('saleInvoices', 'customers'));
     }
 

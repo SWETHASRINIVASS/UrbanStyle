@@ -40,7 +40,7 @@ class SaleInvoiceController extends Controller
     public function create()
     {
         $customers = Customer::all();
-        $products = Product::all();
+        $products = Product::select('id', 'name','sale_price', 'current_stock')->get();
         $taxes = Tax::all();
         return view('sales.create', compact('customers', 'products', 'taxes'));
     }
@@ -63,13 +63,13 @@ class SaleInvoiceController extends Controller
                 'items.*.discount' => 'nullable|numeric|min:0',
                 'items.*.tax_rate' => 'nullable|numeric|min:0',
             ]);
-
+    
             DB::beginTransaction();
-
+    
             // Generate a unique invoice number
             $lastInvoice = SaleInvoice::latest()->first();
             $newInvoiceNumber = $lastInvoice ? 'INV-' . str_pad($lastInvoice->id + 1, 6, '0', STR_PAD_LEFT) : 'INV-000001';
-
+    
             // Create Sale Invoice
             $saleInvoice = SaleInvoice::create([
                 'invoice_number' => $newInvoiceNumber,
@@ -77,18 +77,17 @@ class SaleInvoiceController extends Controller
                 'invoice_date' => $validatedData['invoice_date'],
                 'round_off' => $validatedData['round_off'] ?? 0,
                 'global_discount' => $validatedData['global_discount'] ?? 0,
-                'total_amount' => 0, // Temporary, will be updated later
+                'total_amount' => 0,
             ]);
-
             $totalAmount = 0;
-
-            // Create Sale Invoice Items
+    
+            // Create Sale Invoice Items and Reduce Stock
             foreach ($validatedData['items'] as $item) {
-                $subtotal = $item['quantity'] * $item['price'];
-                $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
-                $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
-                $totalPrice = $subtotal - $discountAmount + $taxAmount;
-
+                $total = $item['quantity'] * $item['price'];
+                $discountAmount = ($total * ($item['discount'] ?? 0)) / 100;
+                $taxAmount = (($total - $discountAmount) * $item['tax_rate']) / 100;
+                $totalPrice = $total - $discountAmount + $taxAmount;
+    
                 SaleInvoiceItem::create([
                     'sale_invoice_id' => $saleInvoice->id,
                     'product_id' => $item['product_id'],
@@ -98,24 +97,32 @@ class SaleInvoiceController extends Controller
                     'tax_rate' => $item['tax_rate'] ?? 0,
                     'total_amount' => $totalPrice,
                 ]);
-
+    
                 $totalAmount += $totalPrice;
+    
+                // Reduce Product Quantity (Fix applied: Move inside the loop)
+                $product = Product::find($item['product_id']);
+                if ($product) {
+                    $product->current_stock -= $item['quantity'];
+                    $product->save();
+                }
             }
-
+    
             // Apply global discount
             $globalDiscountAmount = ($totalAmount * ($validatedData['global_discount'] ?? 0)) / 100;
             $finalAmount = $totalAmount - $globalDiscountAmount;
-
+    
             // Apply round off
             $roundedFinalAmount = round($finalAmount);
             $roundOff = $roundedFinalAmount - $finalAmount;
-
+    
             // Update the total amount in the invoice
             $saleInvoice->update([
-                'total_amount' => $roundedFinalAmount,
+                // 'total_amount' => $roundedFinalAmount,
+                'total_amount' => $totalPrice,
                 'round_off' => $roundOff,
             ]);
-
+    
             DB::commit();
             return redirect()->route('sales.index')->with('success', 'Sale invoice created successfully');
         } catch (\Exception $e) {
@@ -123,6 +130,7 @@ class SaleInvoiceController extends Controller
             return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }
     }
+    
 
     /**
      * Show the specified invoice.
@@ -142,6 +150,7 @@ class SaleInvoiceController extends Controller
         $customers = Customer::all();
         $products = Product::all();
         $taxes = Tax::all();
+
         return view('sales.edit', compact('saleInvoice', 'customers', 'products', 'taxes'));
     }
 
@@ -149,28 +158,54 @@ class SaleInvoiceController extends Controller
      * Update the specified invoice.
      */
     public function update(Request $request, string $id)
-    {
-        try {
-            DB::beginTransaction();
+{
+    try {
+        DB::beginTransaction();
 
-            $saleInvoice = SaleInvoice::findOrFail($id);
+        $validatedData = $request->validate([
+            'customer_id' => 'nullable|exists:customers,id',
+            'invoice_date' => 'required|date',
+            'round_off' => 'nullable|numeric',
+            'global_discount' => 'nullable|numeric',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.price' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.tax_rate' => 'nullable|numeric|min:0',
+        ]);
 
-            // Update sale invoice
-            $saleInvoice->update([
-                'customer_id' => $request->customer_id,
-                'invoice_date' => $request->invoice_date,
-                'round_off' => $request->round_off ?? 0,
-                'global_discount' => $request->global_discount ?? 0,
-            ]);
+        $saleInvoice = SaleInvoice::findOrFail($id);
 
-            $totalAmount = 0;
-            $saleInvoice->saleInvoiceItems()->delete();
+        // Restore previous stock before deleting items
+        foreach ($saleInvoice->saleInvoiceItems as $oldItem) {
+            $product = Product::find($oldItem->product_id);
+            if ($product) {
+                $product->current_stock += $oldItem->quantity; // Restore stock
+                $product->save();
+            }
+        }
 
-            foreach ($request->items as $item) {
-                $subtotal = $item['quantity'] * $item['price'];
-                $discountAmount = ($subtotal * ($item['discount'] ?? 0)) / 100;
-                $taxAmount = (($subtotal - $discountAmount) * $item['tax_rate']) / 100;
-                $totalPrice = $subtotal - $discountAmount + $taxAmount;
+        // Delete old sale items
+        $saleInvoice->saleInvoiceItems()->delete();
+
+        // Update sale invoice details
+        $saleInvoice->update([
+            'customer_id' => $validatedData['customer_id'],
+            'invoice_date' => $validatedData['invoice_date'],
+            'round_off' => $validatedData['round_off'] ?? 0,
+            'global_discount' => $validatedData['global_discount'] ?? 0,
+        ]);
+
+        $totalAmount = 0;
+
+        // Ensure items array exists before processing
+        if (!empty($validatedData['items'])) {
+            foreach ($validatedData['items'] as $item) {
+                $total = $item['quantity'] * $item['price'];
+                $discountAmount = ($total * ($item['discount'] ?? 0)) / 100;
+                $taxAmount = (($total - $discountAmount) * $item['tax_rate']) / 100;
+                $totalPrice = $total - $discountAmount + $taxAmount;
 
                 SaleInvoiceItem::create([
                     'sale_invoice_id' => $saleInvoice->id,
@@ -183,20 +218,38 @@ class SaleInvoiceController extends Controller
                 ]);
 
                 $totalAmount += $totalPrice;
+
+                // Deduct new quantity from stock
+                $product = Product::find($item['product_id']);
+                if ($product) {
+                    $product->current_stock -= $item['quantity'];
+                    $product->save();
+                }
             }
-
-            // Update total amount
-            $saleInvoice->update([
-                'total_amount' => round($totalAmount),
-            ]);
-
-            DB::commit();
-            return redirect()->route('sales.index')->with('success', 'Sale invoice updated successfully');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }
+
+        // Apply global discount
+        $globalDiscountAmount = ($totalAmount * ($validatedData['global_discount'] ?? 0)) / 100;
+        $finalAmount = $totalAmount - $globalDiscountAmount;
+
+        // Apply round off
+        $roundedFinalAmount = round($finalAmount);
+        $roundOff = $roundedFinalAmount - $finalAmount;
+
+        // Update the total amount in the invoice
+        $saleInvoice->update([
+            'total_amount' => $roundedFinalAmount,
+            'round_off' => $roundOff,
+        ]);
+
+        DB::commit();
+        return redirect()->route('sales.index')->with('success', 'Sale invoice updated successfully');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
     }
+}
+
 
     /**
      * Generate PDF for the specified resource.
@@ -224,7 +277,8 @@ class SaleInvoiceController extends Controller
             $saleInvoice = SaleInvoice::findOrFail($id);
             $saleInvoice->saleInvoiceItems()->delete();
             $saleInvoice->delete();
-            return redirect()->route('sales.index')->with('success', 'Sale invoice deleted successfully');
+
+            return redirect()->route('sales.index')->with('success', 'Sale Invoice Deleted Successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }

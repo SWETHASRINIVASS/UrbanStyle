@@ -40,18 +40,21 @@
                             <td class="p-2 border">{{ $supplier->phone }}</td>
                             <td class="p-2 border">{{ $supplier->email }}</td>
                             <td class="p-2 border">
-                                <a href="{{ route('suppliers.show', $supplier->id) }}" class="text-blue-500">View</a>
-                                <a href="{{ route('suppliers.edit', $supplier->id) }}" class="text-green-500">Edit</a>
+                                <a href="{{ route('suppliers.show', $supplier->id) }}" class="text-blue-500">👁️</a>
+                                <a href="{{ route('suppliers.edit', $supplier->id) }}" class="text-green-500">📝</a>
                                 <form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-500">Delete</button>
+                                    <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this supplier?')">🗑️</button>
                                 </form>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+        </div>
+        <div class="mt-4">
+            {{ $suppliers->links() }}
         </div>
     </div>
 </div>

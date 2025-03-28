@@ -44,19 +44,25 @@
                             <td class="p-2 border">{{ $product->sale_price }}</td>
                             <td class="p-2 border">{{ $product->current_stock }}</td>
                             <td class="p-2 border">
-                                <a href="{{ route('products.show', $product->id) }}" class="text-blue-500">View</a>
-                                <a href="{{ route('products.edit', $product->id) }}" class="text-green-500">Edit</a>
+                                <a href="{{ route('products.show', $product->id) }}" class="text-blue-500">👁️</a>
+                                <a href="{{ route('products.edit', $product->id) }}" class="text-green-500">📝</a>
                                 <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-500">Delete</button>
+                                    <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this product?')">🗑️</button>
                                 </form>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            
+        </div>
+        <div class="mt-4">
+            {{ $products->links() }}
         </div>
     </div>
+    
 </div>
+
 @endsection

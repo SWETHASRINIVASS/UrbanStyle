@@ -7,8 +7,14 @@
 <div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <h1 class="text-2xl font-bold mb-4">Edit Sale Return</h1>
 
-    <form action="{{ route('sale_returns.store') }}" method="POST" x-data="{
-        items: [],
+    <form action="{{ route('sale_returns.update', $saleReturn->id) }}" method="POST" x-data="{
+        items: {{ json_encode($saleReturn->saleReturnItems->map(function($item) {
+            return [
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+            ];
+        })) }},
         calculateTotalAmount(item) {
             const price = parseFloat(item.price || 0);
             const quantity = parseFloat(item.quantity || 0);
@@ -25,7 +31,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
                 <label for="sale_invoice_id" class="block text-gray-700">Sale Invoice</label>
-                <select name="sale_invoice_id" id="sale_invoice_id" class="form-control mt-1 block w-full" required>
+                <select name="sale_invoice_id" id="sale_invoice_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Invoice</option>
                     @foreach($saleInvoices as $invoice)
                         <option value="{{ $invoice->id }}" {{ $saleReturn->sale_invoice_id == $invoice->id ? 'selected' : '' }}>
@@ -36,7 +42,7 @@
             </div>
             <div class="form-group mb-4">
                 <label for="customer_id" class="block text-gray-700">Customer</label>
-                <select name="customer_id" id="customer_id" class="form-control mt-1 block w-full" required>
+                <select name="customer_id" id="customer_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Customer</option>
                     @foreach($customers as $customer)
                         <option value="{{ $customer->id }}" {{ $saleReturn->customer_id == $customer->id ? 'selected' : '' }}>

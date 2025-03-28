@@ -43,16 +43,16 @@
                     <td class="p-2 border">{{ $purchaseInvoice->invoice_number }}</td>
                     <td class="p-2 border">{{ $purchaseInvoice->supplier->name ?? 'N/A' }}</td>
                     <td class="p-2 border">{{ $purchaseInvoice->invoice_date }}</td>
-                    <td class="p-2 border">{{ number_format($purchaseInvoice->total_amount, 2) ?? number_format($purchaseInvoice->getTotalAmountAttribute(), 2) }}</td>
+                    <td class="p-2 border"> ₹{{ number_format($purchaseInvoice->total_amount, 2) }}</td>
                     {{-- <td class="p-2 border">{{ $purchaseInvoice->status }}</td> --}}
                     <td class="p-2 border">
-                        <a href="{{ route('purchases.show', $purchaseInvoice->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('purchases.edit', $purchaseInvoice->id) }}" class="text-green-500">Edit</a>
-                        <a href="{{ route('purchases.pdf', $purchaseInvoice->id) }}" class="text-gray-500">Download PDF</a>
+                        <a href="{{ route('purchases.show', $purchaseInvoice->id) }}" class="text-blue-500">👁️</a>
+                        <a href="{{ route('purchases.edit', $purchaseInvoice->id) }}" class="text-green-500">📝</a>
+                        <a href="{{ route('purchases.pdf', $purchaseInvoice->id) }}" class="text-gray-500">🖨️</a>
                         <form action="{{ route('purchases.destroy', $purchaseInvoice->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500">Delete</button>
+                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this invoice?')">🗑️</button>
                         </form>
                     </td>
                 </tr>
@@ -63,10 +63,11 @@
             @endforelse
         </tbody>
     </table>
-</div>
-   
-<div class="mt-4">
+    <div class="mt-4">
         {{ $purchaseInvoices->links() }}
     </div>
+</div>
+   
+
 
 @endsection

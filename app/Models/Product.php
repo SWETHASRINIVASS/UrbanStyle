@@ -33,4 +33,13 @@ class Product extends Model
     {
         return $this->hasMany(SaleInvoiceItem::class);
     }
+
+    public function updateStock($quantity, $operation = 'add')
+    {
+        if ($operation === 'add') {
+            $this->increment('current_stock', $quantity);
+        } else {
+            $this->decrement('current_stock', $quantity);
+        }
+    }
 }

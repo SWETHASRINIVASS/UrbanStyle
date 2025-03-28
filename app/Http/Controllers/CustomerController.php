@@ -16,7 +16,7 @@ class CustomerController extends Controller
         if ($request->has('search') && !empty($request->search)) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
-        $customers = $query->orderBy('created_at', 'desc')->paginate(10);
+        $customers = $query->orderBy('created_at', 'desc')->paginate(5);
         
         return view("Customers.index", compact("customers"));
 

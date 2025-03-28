@@ -32,12 +32,12 @@
                     <td class="p-2 border">{{ $tax->tax_name }}</td>
                     <td class="p-2 border">{{ $tax->tax_rate }}%</td>
                     <td class="p-2 border">
-                        <a href="{{ route('taxes.show', $tax->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('taxes.edit', $tax->id) }}" class="text-green-500">Edit</a>
+                        <a href="{{ route('taxes.show', $tax->id) }}" class="text-blue-500">👁️</a>
+                        <a href="{{ route('taxes.edit', $tax->id) }}" class="text-green-500">📝</a>
                         <form action="{{ route('taxes.destroy', $tax->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 ml-2">Delete</button>
+                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this tax?')">🗑️</button>
                         </form>
                     </td>
                 </tr>

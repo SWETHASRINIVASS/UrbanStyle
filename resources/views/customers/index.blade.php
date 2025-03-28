@@ -42,12 +42,12 @@
                             <td class="p-2 border">{{ $customer->address_line_1}}</td>
                             <td class="p-2 border">{{ $customer->email }}</td>
                             <td class="p-2 border">
-                                <a href="{{ route('customers.show', $customer->id) }}" class="text-blue-500">View</a>
-                                <a href="{{ route('customers.edit', $customer->id) }}" class="text-green-500">Edit</a>
+                                <a href="{{ route('customers.show', $customer->id) }}" class="text-blue-500">👁️</a>
+                                <a href="{{ route('customers.edit', $customer->id) }}" class="text-green-500">📝</a>
                                 <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-500">Delete</button>
+                                    <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this customer?')">🗑️</button>
                                 </form>
                             </td>
                         </tr>
@@ -55,6 +55,10 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-4">
+            {{ $customers->links() }}
+        </div>
     </div>
+    
 </div>
 @endsection

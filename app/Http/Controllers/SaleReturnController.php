@@ -99,22 +99,14 @@ class SaleReturnController extends Controller
      */
     public function edit($id)
 {
-    $saleReturn = SaleReturn::with('saleReturnItems.product')->findOrFail($id);
+    $saleReturn = SaleReturn::with('saleReturnItems')->findOrFail($id);
     $saleInvoices = SaleInvoice::all();
     $customers = Customer::all();
     $products = Product::all();
 
-    // Prepare items for Alpine.js
-    $items = $saleReturn->saleReturnItems->map(function ($item) {
-        return [
-            'product_id' => $item->product_id,
-            'quantity' => $item->quantity,
-            'price' => $item->price,
-            'total_amount' => $item->total_amount,
-        ];
-    });
+    
 
-    return view('sale_returns.edit', compact('saleReturn', 'saleInvoices', 'customers', 'products', 'items'));
+    return view('sale_returns.edit', compact('saleReturn', 'saleInvoices', 'customers', 'products'));
 }
 
     /**

@@ -43,17 +43,17 @@
                     <td class="p-2 border">{{ $payment->id }}</td>
                     <td class="p-2 border">{{ $payment->purchaseInvoice->invoice_number ?? 'N/A' }}</td>
                     <td class="p-2 border">{{ $payment->purchaseInvoice->supplier->name ?? 'N/A' }}</td>
-                    <td class="p-2 border">{{ number_format($payment->amount, 2) }}</td>
+                    <td class="p-2 border"> ₹{{ number_format($payment->amount, 2) }}</td>
                     <td class="p-2 border">{{ $payment->payment_method }}</td>
                     <td class="p-2 border">{{ $payment->date }}</td>
                     <td class="p-2 border">{{ $payment->status }}</td>
                     <td class="p-2 border">
-                        <a href="{{ route('purchase_payments.show', $payment->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('purchase_payments.edit', $payment->id) }}" class="text-green-500 ml-2">Edit</a>
+                        <a href="{{ route('purchase_payments.show', $payment->id) }}" class="text-blue-500">👁️</a>
+                        <a href="{{ route('purchase_payments.edit', $payment->id) }}" class="text-green-500 ml-2">📝</a>
                         <form action="{{ route('purchase_payments.destroy', $payment->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this payment?')">Delete</button>
+                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this payment?')">🗑️</button>
                         </form>
                     </td>
                 </tr>

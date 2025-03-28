@@ -27,12 +27,12 @@
                     <td class="p-2 border">{{ $expense->date }}</td>
                     <td class="p-2 border">{{ $expense->description }}</td>
                     <td class="p-2 border">
-                        <a href="{{ route('expenses.show', $expense->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('expenses.edit', $expense->id) }}" class="text-green-500">Edit</a>
+                        <a href="{{ route('expenses.show', $expense->id) }}" class="text-blue-500">👁️</a>
+                        <a href="{{ route('expenses.edit', $expense->id) }}" class="text-green-500">📝</a>
                         <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500">Delete</button>
+                            <button type="submit" class="text-red-500">🗑️</button>
                         </form>
                     </td>
                 </tr>

@@ -14,10 +14,13 @@
             <!-- Sale Invoice Selection -->
             <div class="form-group mb-4">
                 <label for="sale_invoice_id" class="block text-gray-700 font-medium">Sale Invoice</label>
-                <select name="sale_invoice_id" id="sale_invoice_id" class="form-control mt-1 block w-full" required>
+                <select name="sale_invoice_id" id="sale_invoice_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Invoice</option>
                     @foreach($saleInvoices as $invoice)
-                        <option value="{{ $invoice->id }}">
+                        <option value="{{ $invoice->id }}" 
+                            data-total="{{ $invoice->total_amount }}" 
+                            data-customer-id="{{ $invoice->customer->id ?? '' }}" 
+                            data-invoice-date="{{ $invoice->invoice_date ?? '' }}">
                             {{ $invoice->invoice_number }} - {{ $invoice->customer->name ?? 'N/A' }} - {{ $invoice->total_amount }}
                         </option>
                     @endforeach
@@ -26,7 +29,7 @@
 
             <div class="form-group mb-4">
                 <label for="customer_id" class="block text-gray-700 font-medium">Customer</label>
-                <select name="customer_id" id="customer_id" class="form-control mt-1 block w-full" required>
+                <select name="customer_id" id="customer_id" class="tom-select mt-1 block w-full" readonly>
                     <option value="">Select Customer</option>
                     @foreach($customers as $customer)
                         <option value="{{ $customer->id }}">{{ $customer->name }}</option>
@@ -55,19 +58,19 @@
             <!-- Total Amount -->
             <div class="form-group mb-4">
                 <label for="total_amount" class="block text-gray-700 font-medium">Total Amount</label>
-                <input type="number" name="total_amount" id="total_amount" class="form-control mt-1 block w-full" step="0.01" min="0" required>
+                <input type="number" name="total_amount" id="total_amount" class="form-control mt-1 block w-full" step="0.01" min="0" readonly>
             </div>
 
             <!-- Balance Due -->
             <div class="form-group mb-4">
                 <label for="balance_due" class="block text-gray-700 font-medium">Balance Due</label>
-                <input type="number" name="balance_due" id="balance_due" class="form-control mt-1 block w-full" step="0.01" min="0">
+                <input type="number" name="balance_due" id="balance_due" class="form-control mt-1 block w-full" step="0.01" min="0" readonly>
             </div>
 
             <!-- Payment Method -->
             <div class="form-group mb-4">
                 <label for="payment_method" class="block text-gray-700 font-medium">Payment Method</label>
-                <select name="payment_method" id="payment_method" class="form-control mt-1 block w-full" required>
+                <select name="payment_method" id="payment_method" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Payment Method</option>
                     <option value="Cash">Cash</option>
                     <option value="Card">Card</option>
@@ -79,7 +82,7 @@
             <!-- Payment Status -->
             <div class="form-group mb-4">
                 <label for="status" class="block text-gray-700 font-medium">Status</label>
-                <select name="status" id="status" class="form-control mt-1 block w-full" required>
+                <select name="status" id="status" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Status</option>
                     <option value="Pending">Pending</option>
                     <option value="Completed">Completed</option>
@@ -94,4 +97,62 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const saleInvoiceSelect = document.getElementById("sale_invoice_id");
+        const customerSelect = document.getElementById("customer_id");
+        const totalAmountInput = document.getElementById("total_amount");
+        const balanceDueInput = document.getElementById("balance_due");
+        const amountInput = document.getElementById("amount");
+        const roundOffInput = document.getElementById("round_off");
+
+        // Ensure these elements exist to avoid errors
+        if (!saleInvoiceSelect || !customerSelect || !totalAmountInput || !balanceDueInput || !amountInput || !roundOffInput) {
+            console.error("One or more elements are missing.");
+            return;
+        }
+
+        // Function to update balance due
+        function updateBalanceDue() {
+            let totalAmount = parseFloat(totalAmountInput.value) || 0;
+            let amountPaid = parseFloat(amountInput.value) || 0;
+            let roundOff = parseFloat(roundOffInput.value) || 0;
+
+            let balanceDue = totalAmount - amountPaid + roundOff;
+            balanceDueInput.value = balanceDue.toFixed(2);
+        }
+
+        // When an invoice is selected, update fields
+        saleInvoiceSelect.addEventListener("change", function () {
+            let selectedOption = this.options[this.selectedIndex];
+
+            // Ensure the option has data attributes before accessing them
+            if (selectedOption) {
+                let totalAmount = selectedOption.getAttribute("data-total") || "0";
+                let customerId = selectedOption.getAttribute("data-customer-id") || "";
+                let invoiceDate = selectedOption.getAttribute("data-invoice-date") || "";
+
+                totalAmountInput.value = parseFloat(totalAmount).toFixed(2);
+                balanceDueInput.value = parseFloat(totalAmount).toFixed(2); // Set balance due initially
+                customerSelect.value = customerId; // Set the customer
+                
+
+                // Debugging log
+                console.log("Selected Invoice:", {
+                    totalAmount: totalAmount,
+                    customerId: customerId,
+                    invoiceDate: invoiceDate
+                });
+            } else {
+                console.error("Selected option is undefined");
+            }
+        });
+
+        // When amount or round-off is entered, update balance due
+        amountInput.addEventListener("input", updateBalanceDue);
+        roundOffInput.addEventListener("input", updateBalanceDue);
+    });
+</script>
+
 @endsection

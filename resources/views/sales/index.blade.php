@@ -42,20 +42,16 @@
                     <td class="p-2 border">{{ $saleInvoice->invoice_number }}</td>
                     <td class="p-2 border">{{ $saleInvoice->customer->name ?? 'N/A' }}</td>
                     <td class="p-2 border">{{ $saleInvoice->invoice_date }}</td>
-                    <td class="p-2 border">{{ number_format($saleInvoice->total_amount, 2) }}</td>
+                    <td class="p-2 border"> ₹{{ number_format($saleInvoice->total_amount, 2) }}</td>
                     <td class="p-2 border">
-                        {{-- <td>
-                            <a href="{{ route('sales.pdf', $saleinvoice->id) }}" class="bg-green-500 text-white px-3 py-1 rounded">
-                                Download PDF
-                            </a>
-                        </td> --}}
-                        <a href="{{ route('sales.show', $saleInvoice->id) }}" class="text-blue-500">View</a>
-                        <a href="{{ route('sales.edit', $saleInvoice->id) }}" class="text-green-500 ml-2">Edit</a>
-                        <a href="{{ route('sales.pdf', $saleInvoice->id) }}" class="text-gray-500 ml-2">Download PDF</a>
+                        
+                        <a href="{{ route('sales.show', $saleInvoice->id) }}" class="text-blue-500 text-lg">👁️</a>  
+                        <a href="{{ route('sales.edit', $saleInvoice->id) }}" class="text-green-500 text-lg ml-2">📝</a>  
+                        <a href="{{ route('sales.pdf', $saleInvoice->id) }}" class="text-gray-500 text-lg ml-2"> 🖨️ </a>  
                         <form action="{{ route('sales.destroy', $saleInvoice->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this invoice?')">Delete</button>
+                            <button type="submit" class="text-red-500 text-lg ml-2" onclick="return confirm('Are you sure you want to delete this invoice?')">🗑️</button>
                         </form>
                     </td>
                 </tr>

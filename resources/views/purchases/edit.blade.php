@@ -32,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
                 <label for="supplier_id" class="block text-gray-700">Supplier</label>
-                <select name="supplier_id" id="supplier_id" class="form-control mt-1 block w-full" required>
+                <select name="supplier_id" id="supplier_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Supplier</option>
                     @foreach($suppliers as $supplier)
                         <option value="{{ $supplier->id }}" {{ $purchaseInvoice->supplier_id == $supplier->id ? 'selected' : '' }}>

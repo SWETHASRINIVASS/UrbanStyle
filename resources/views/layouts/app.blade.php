@@ -6,6 +6,98 @@
     <title>@yield('title', 'Retail Billing System')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Tom Select CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.2.2/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<!-- Tom Select JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.2.2/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#customer_id', {
+                create: false,
+                onItemAdd: function(value, item) {
+                    console.log('Item added:', value);
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#product_id', {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                placeholder: "Select a Product...",
+                onItemAdd: function(value, item) {
+                    console.log('Item added:', value);
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#supplier_id', {
+                create: false,
+                onItemAdd: function(value, item) {
+                    console.log('Item added:', value);
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#category_id', {
+                create: false,
+                onItemAdd: function(value, item) {
+                    console.log('Item added:', value);
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("#tax_rate", {
+                create: false, 
+                sortField: { field: "text", direction: "asc" },
+                placeholder: "Select a Tax Rate...",
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("#sale_invoice_id", {
+                create: false, 
+                sortField: { field: "text", direction: "asc" },
+                placeholder: "Select a Sale Invoice...",
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#purchase_invoice_id', {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                placeholder: "Select a Purchase Invoice...",
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#payment_method', {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                placeholder: "Select a Payment Method...",
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#status', {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                placeholder: "Select a Payment Type...",
+            });
+        });
+    </script>
+    
 </head>
 <body class="bg-gray-50">
 
@@ -102,7 +194,7 @@
                         </li>
                     </ul>
                 </li>
-
+                {{-- <li><a href="{{ route('reports.index') }}" class="hover:underline">Reports</a></li> --}}
                 <li><a href="{{ route('users.index') }}" class="hover:underline">Users</a></li>
                 <li><a href="{{ route('taxes.index') }}" class="hover:underline">Taxes</a></li>
                 <li><a href="{{ route('expenses.index') }}" class="hover:underline">Expenses</a></li>

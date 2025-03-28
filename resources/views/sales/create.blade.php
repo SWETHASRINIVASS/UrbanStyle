@@ -9,33 +9,37 @@
 
     <form action="{{ route('sales.store') }}" method="POST" x-data="{
         items: [],
-    globalDiscount: 0,
-    get total() {
-        return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
-    },
-    get totalTax() {
-        return this.items.reduce((sum, item) => sum + ((item.quantity * item.price - (item.quantity * item.price * (item.discount / 100))) * (item.tax_rate / 100)), 0).toFixed(2);
-    },
-    get totalDiscount() {
-        return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.discount / 100)), 0).toFixed(2);
-    },
-    get unroundedTotal() {
-        return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax) - parseFloat(this.globalDiscount));
-    },
-    get roundOff() {
-        return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2);
-    },
-    get totalAmount() {
-        return (Math.round(this.unroundedTotal)).toFixed(2);
-    }
-}">
+        globalDiscount: 0,
+        get total() {
+            return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
+        },
+        get totalDiscount() {
+            return this.items.reduce((sum, item) => sum + ((item.quantity * item.price) * (item.discount / 100)), 0).toFixed(2);
+        },
+        get totalTax() {
+            return this.items.reduce((sum, item) => {
+                let discountedPrice = (item.quantity * item.price) - ((item.quantity * item.price) * (item.discount / 100));
+                return sum + (discountedPrice * (item.tax_rate / 100));
+            }, 0).toFixed(2);
+        },
+        get unroundedTotal() {
+            return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax) - parseFloat(this.globalDiscount));
+        },
+        get roundOff() {
+            return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2);
+        },
+        get totalAmount() {
+            return Math.round(this.unroundedTotal).toFixed(2);
+        }
+    }">
+    
         @csrf
 
         <!-- Customer and Invoice Details -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
-                <label for="customer_id" class="block text-gray-700">Customer</label>
-                <select name="customer_id" id="customer_id" class="form-control mt-1 block w-full" required>
+                <label for="customer_id" class="block  text-gray-700">Select Customer</label>
+                <select id="customer_id" name="customer_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Customer</option>
                     @foreach($customers as $customer)
                         <option value="{{ $customer->id }}">{{ $customer->name }}</option>
@@ -64,13 +68,14 @@
                 </tr>
             </thead>
             <tbody>
+                 
                 <template x-for="(item, index) in items" :key="index">
                     <tr>
                         <td class="p-2 border">
-                            <select x-model="item.product_id" :name="`items[${index}][product_id]`" class="w-full border p-2 rounded" required>
+                            <select id="product_id" name="items[0][product_id]" class="tom-select mt-1 block w-full" required>
                                 <option value="">Select Product</option>
                                 @foreach($products as $product)
-                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                    <option value="{{ $product->id }}">{{ $product->name }} (Stock: {{ $product->current_stock }}) </option>
                                 @endforeach
                             </select>
                         </td>
@@ -78,13 +83,13 @@
                             <input type="number" x-model="item.quantity" :name="`items[${index}][quantity]`" class="w-full border p-2 rounded" min="1" required>
                         </td>
                         <td class="p-2 border">
-                            <input type="number" x-model="item.price" :name="`items[${index}][price]`" class="w-full border p-2 rounded" step="0.01" required>
+                            <input type="number" x-model="item.price" :name="`items[${index}][price]`" class="w-full border p-2 rounded" step="0.01" readonly>
                         </td>
                         <td class="p-2 border">
                             <input type="number" x-model="item.discount" :name="`items[${index}][discount]`" class="w-full border p-2 rounded" step="0.01">
                         </td>
                         <td class="p-2 border">
-                            <select x-model="item.tax_rate" :name="'items[' + index + '][tax_rate]'" class="w-full border p-2 rounded">
+                            <select x-model="item.tax_rate" :name="`items[${index}][tax_rate]`" class="taxw-full border p-2 rounded">
                                 <option value="">Select Tax Rate</option>
                                 @foreach($taxes as $tax)
                                     <option value="{{ $tax->tax_rate }}">{{ $tax->tax_name }} ({{ $tax->tax_rate }}%)</option>

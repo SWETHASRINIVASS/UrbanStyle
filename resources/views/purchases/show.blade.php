@@ -30,10 +30,10 @@
                 <th class="px-4 py-2 text-left">Total Amount</th>
                 <td class="px-4 py-2">{{ number_format($purchaseInvoice->total_amount, 2) }}</td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <th class="px-4 py-2 text-left">Round Off</th>
                 <td class="px-4 py-2">{{ number_format($purchaseInvoice->round_off, 2) }}</td>
-            </tr>
+            </tr> --}}
             {{-- <tr class="bg-gray-200">
                 <th class="px-4 py-2 text-left">Status</th>
                 <td class="px-4 py-2">{{ $purchaseInvoice->status ?? 'N/A' }}</td>

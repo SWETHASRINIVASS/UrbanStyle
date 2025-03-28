@@ -17,13 +17,28 @@
                 'tax_rate' => $item->tax_rate,
             ];
         })->toJson() }},
-        globalDiscount: {{ $saleInvoice->global_discount }},
-        get total() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2); },
-        get totalTax() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.tax_rate / 100)), 0).toFixed(2); },
-        get totalDiscount() { return this.items.reduce((sum, item) => sum + (item.quantity * item.price * (item.discount / 100)), 0).toFixed(2); },
-        get unroundedTotal() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) - parseFloat(this.globalDiscount) + parseFloat(this.totalTax)); },
-        get roundOff() { return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2); },
-        get totalAmount() { return (parseFloat(this.total) - parseFloat(this.totalDiscount) - parseFloat(this.globalDiscount) + parseFloat(this.totalTax)).toFixed(2); }
+        globalDiscount: 0,
+        get total() {
+            return this.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2);
+        },
+        get totalDiscount() {
+            return this.items.reduce((sum, item) => sum + ((item.quantity * item.price) * (item.discount / 100)), 0).toFixed(2);
+        },
+        get totalTax() {
+            return this.items.reduce((sum, item) => {
+                let discountedPrice = (item.quantity * item.price) - ((item.quantity * item.price) * (item.discount / 100));
+                return sum + (discountedPrice * (item.tax_rate / 100));
+            }, 0).toFixed(2);
+        },
+        get unroundedTotal() {
+            return (parseFloat(this.total) - parseFloat(this.totalDiscount) + parseFloat(this.totalTax) - parseFloat(this.globalDiscount)).toFixed(2);
+        },
+        get roundOff() {
+            return (Math.round(this.unroundedTotal) - this.unroundedTotal).toFixed(2);
+        },
+        get totalAmount() {
+            return Math.round(this.unroundedTotal).toFixed(2);
+        }
     }">
         @csrf
         @method('PUT')
@@ -32,7 +47,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group mb-4">
                 <label for="customer_id" class="block text-gray-700">Customer</label>
-                <select name="customer_id" id="customer_id" class="form-control mt-1 block w-full" required>
+                <select name="customer_id" id="customer_id" class="tom-select mt-1 block w-full" required>
                     <option value="">Select Customer</option>
                     @foreach($customers as $customer)
                         <option value="{{ $customer->id }}" {{ $saleInvoice->customer_id == $customer->id ? 'selected' : '' }}>
